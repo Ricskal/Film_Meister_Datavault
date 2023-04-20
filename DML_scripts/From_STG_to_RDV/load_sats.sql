@@ -9,6 +9,7 @@ insert into rdv_film_sat (
     , Film_tags
     , Film_IMDB_Score
     , Laaddatum
+    , Is_Current
 )
     with target_table as (
         select
@@ -23,6 +24,7 @@ insert into rdv_film_sat (
         FROM rdv_film_hub rfh
         left join rdv_film_sat rfs
             on rfh.Film_Hub_Key = rfs.Film_Hub_Key
+        where rfs.Is_Current = 1
     ),
     source_table as (
         select
@@ -55,6 +57,7 @@ insert into rdv_film_sat (
     , st.Film_tags
     , st.Film_IMDB_Score
     , strftime('%Y-%m-%d %H:%M:%S', 'now') as Laaddatum
+    , 1 as Is_Current
     from source_table st
     join target_table tt
         on st.Film_Hub_Key = tt.Film_Hub_Key
@@ -70,6 +73,7 @@ insert into rdv_filmavond_sat (
     , Aantal_Jaar
     , Aantal_Ronde
     , Laaddatum
+    , Is_Current
 )
     with target_table as (
         select
@@ -82,6 +86,7 @@ insert into rdv_filmavond_sat (
         from rdv_filmavond_link rfl
         left join rdv_filmavond_sat rfs
             on rfl.Filmavond_Link_Key = rfs.Filmavond_Link_Key
+        where rfs.Is_Current = 1
     ),
     source_table as (
 		select
@@ -115,6 +120,7 @@ insert into rdv_filmavond_sat (
     , st.Aantal_Jaar
     , st.Aantal_Ronde
     , strftime('%Y-%m-%d %H:%M:%S', 'now') as Laaddatum
+    , 1 as Is_Current
     from source_table st
     join target_table tt
         on st.Filmavond_Link_Key = tt.Filmavond_Link_Key

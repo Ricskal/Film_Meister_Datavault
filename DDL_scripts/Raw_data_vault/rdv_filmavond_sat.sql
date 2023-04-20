@@ -8,4 +8,5 @@
             , Aantal_Jaar REAL
             , Aantal_Ronde REAL
             , Laaddatum TEXT
+            , Is_Current INTEGER
         );

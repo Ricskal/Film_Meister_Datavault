@@ -67,6 +67,12 @@ with open('DML_scripts/From_STG_to_RDV/load_sats.sql', 'r') as file:
 conn.executescript(sql_script)
 conn.commit()
 
+# Update the Is_Current field in the satalites
+with open('DML_scripts/From_STG_to_RDV/Update_Is_Current.sql', 'r') as file:
+    sql_script = file.read()
+conn.executescript(sql_script)
+conn.commit()
+
 # ------------------------------------------------------------------
 
 # close the database connection
