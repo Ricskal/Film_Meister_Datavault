@@ -75,5 +75,34 @@ conn.commit()
 
 # ------------------------------------------------------------------
 
+
+# ----------- CREATE BUSINESS DATA VAULT OBJECTS -------------------
+# bdv_film_hub.sql
+with open('DDL_scripts/Business_data_vault/bdv_film_hub.sql', 'r') as file:
+    sql_script = file.read()
+conn.executescript(sql_script)
+
+# bdv_film_sat.sql
+with open('DDL_scripts/Business_data_vault/bdv_film_sat.sql', 'r') as file:
+    sql_script = file.read()
+conn.executescript(sql_script)
+
+# bdv_meister_hub.sql
+with open('DDL_scripts/Business_data_vault/bdv_meister_hub.sql', 'r') as file:
+    sql_script = file.read()
+conn.executescript(sql_script)
+
+# bdv_filmavond_link.sql
+with open('DDL_scripts/Business_data_vault/bdv_filmavond_link.sql', 'r') as file:
+    sql_script = file.read()
+conn.executescript(sql_script)
+
+# bdv_filmavond_sat.sql
+with open('DDL_scripts/Business_data_vault/bdv_filmavond_sat.sql', 'r') as file:
+    sql_script = file.read()
+conn.executescript(sql_script)
+
+# ------------------------------------------------------------------
+
 # close the database connection
 conn.close()
