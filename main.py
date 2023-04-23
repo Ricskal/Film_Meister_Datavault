@@ -43,7 +43,6 @@ conn.executescript(sql_script)
 with open('DDL_scripts/Raw_data_vault/rdv_filmavond_sat.sql', 'r') as file:
     sql_script = file.read()
 conn.executescript(sql_script)
-
 # ------------------------------------------------------------------
 
 
@@ -71,13 +70,22 @@ with open('DML_scripts/From_STG_to_RDV/Update_Is_Current.sql', 'r') as file:
     sql_script = file.read()
 conn.executescript(sql_script)
 conn.commit()
-
 # ------------------------------------------------------------------
 
 
 # ----------- CREATE BUSINESS DATA VAULT OBJECTS -------------------
+# bdv_film_genre_link.sql
+with open('DDL_scripts/Business_data_vault/bdv_film_genre_link.sql', 'r') as file:
+    sql_script = file.read()
+conn.executescript(sql_script)
+
 # bdv_film_hub.sql
 with open('DDL_scripts/Business_data_vault/bdv_film_hub.sql', 'r') as file:
+    sql_script = file.read()
+conn.executescript(sql_script)
+
+# bdv_genre_hub.sql
+with open('DDL_scripts/Business_data_vault/bdv_genre_hub.sql', 'r') as file:
     sql_script = file.read()
 conn.executescript(sql_script)
 
@@ -100,22 +108,10 @@ conn.executescript(sql_script)
 with open('DDL_scripts/Business_data_vault/bdv_filmavond_sat.sql', 'r') as file:
     sql_script = file.read()
 conn.executescript(sql_script)
-
-# bdv_filmavond_sat.sql
-with open('DDL_scripts/Business_data_vault/bdv_genre_hub.sql', 'r') as file:
-    sql_script = file.read()
-conn.executescript(sql_script)
-
-# bdv_film_genre_link.sql
-with open('DDL_scripts/Business_data_vault/bdv_film_genre_link.sql', 'r') as file:
-    sql_script = file.read()
-conn.executescript(sql_script)
-
 # ------------------------------------------------------------------
 
 
 # --- PIVOT GENRES AND FILL bdv_genre_hub AND bdv_film_genre_link --
-
 # select Film_Hub_Key and Film_Genres from rdv_film_sat and make a clean list.
 cur = conn.cursor()
 cur.execute("select Film_Hub_Key, Film_Genres from rdv_film_sat;")
@@ -169,9 +165,30 @@ for row in table_list:
             )
         ''', (film_hub_key, genre_hub_key, film_hub_key, genre_hub_key))
         conn.commit()
-
 # ------------------------------------------------------------------
 
+
+# ----------- CREATE DATAMARTS -------------------------------------
+# dm_dim_datum.sql
+with open('DDL_scripts/Datamarts/dm_dim_datum.sql', 'r') as file:
+    sql_script = file.read()
+conn.executescript(sql_script)
+
+# dm_dim_film.sql
+with open('DDL_scripts/Datamarts/dm_dim_film.sql', 'r') as file:
+    sql_script = file.read()
+conn.executescript(sql_script)
+
+# dm_dim_meister.sql
+with open('DDL_scripts/Datamarts/dm_dim_meister.sql', 'r') as file:
+    sql_script = file.read()
+conn.executescript(sql_script)
+
+# dm_fact_filmavond.sql
+with open('DDL_scripts/Datamarts/dm_fact_filmavond.sql', 'r') as file:
+    sql_script = file.read()
+conn.executescript(sql_script)
+# ------------------------------------------------------------------
 
 # close the database connection
 conn.close()

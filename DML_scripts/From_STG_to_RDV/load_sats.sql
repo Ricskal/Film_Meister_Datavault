@@ -21,10 +21,10 @@ insert into rdv_film_sat (
             COALESCE(rfs.Film_tags, '|') || '|' ||
             COALESCE(rfs.Film_IMDB_Score, '|') AS Target_Concact
             , rfh.Film_Hub_Key
+            , case when rfs.Is_Current is null then 1 else rfs.Is_Current end as Is_Current
         FROM rdv_film_hub rfh
         left join rdv_film_sat rfs
             on rfh.Film_Hub_Key = rfs.Film_Hub_Key
-        where rfs.Is_Current = 1
     ),
     source_table as (
         select
@@ -62,6 +62,7 @@ insert into rdv_film_sat (
     join target_table tt
         on st.Film_Hub_Key = tt.Film_Hub_Key
     where st.Source_Concact <> tt.Target_Concact
+    and tt.Is_Current = 1
 ;
 
 /* load from stg_excelsheet_vw to rdv_filmavond_sat */
@@ -83,10 +84,10 @@ insert into rdv_filmavond_sat (
             coalesce(rfs.Aantal_Films, '|') || '|' ||
             coalesce(rfs.Aantal_Jaar, '|') || '|' ||
             coalesce(rfs.Aantal_Ronde, '|') AS Target_Concact
+            , case when rfs.Is_Current is null then 1 else rfs.Is_Current end as Is_Current
         from rdv_filmavond_link rfl
         left join rdv_filmavond_sat rfs
             on rfl.Filmavond_Link_Key = rfs.Filmavond_Link_Key
-        where rfs.Is_Current = 1
     ),
     source_table as (
 		select
@@ -125,4 +126,5 @@ insert into rdv_filmavond_sat (
     join target_table tt
         on st.Filmavond_Link_Key = tt.Filmavond_Link_Key
     where st.Source_Concact <> tt.Target_Concact
+    and tt.Is_Current = 1
 ;

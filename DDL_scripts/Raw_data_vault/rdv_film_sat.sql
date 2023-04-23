@@ -10,5 +10,6 @@
             , Film_IMDB_Score REAL
             , Laaddatum TEXT
             , Is_Current INTEGER
+            , PRIMARY KEY(Film_Hub_Key, Laaddatum)
         );
 

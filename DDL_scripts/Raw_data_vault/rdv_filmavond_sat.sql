@@ -9,4 +9,5 @@
             , Aantal_Ronde REAL
             , Laaddatum TEXT
             , Is_Current INTEGER
+            , PRIMARY KEY(Filmavond_Link_Key, Laaddatum)
         );
