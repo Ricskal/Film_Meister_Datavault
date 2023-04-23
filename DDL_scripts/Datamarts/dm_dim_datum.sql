@@ -1,6 +1,6 @@
 -- https://medium.com/@jeffclark_61103/creating-a-date-dimension-in-sqlite-aa6f52450971
 -- Create a table to permanently store the output
---CREATE TABLE dm_dim_datum AS
+CREATE TABLE IF NOT EXISTS dm_dim_datum AS
 -- Initiate the recursive loop
 WITH RECURSIVE
 -- Define a CTE to hold the recursive output
@@ -19,7 +19,7 @@ AS
     )
 -- Output the result set to the permanent table
 SELECT
-      strftime('%Y%m%d', CalendarDateInterval) as Datum_Key
+      strftime('%Y%m%d', CalendarDateInterval) as Dim_Datum_Key
     , CalendarDateInterval as Datum
     , strftime('%w',CalendarDateInterval) +1 as	DagNummer
     , case cast (strftime('%w', CalendarDateInterval) as integer)
@@ -84,7 +84,6 @@ SELECT
 	  	  -- Kerstdagen
 		  when strftime('%m',CalendarDateInterval) = '12' and strftime('%d',CalendarDateInterval) = '25' then '1e Kerstdag'
 		  when strftime('%m',CalendarDateInterval) = '12' and strftime('%d',CalendarDateInterval) = '26' then '2e Kerstdag'
-	  	  else ''
+		  else ''
 	  end as  Toelichting
-
 FROM rDateDimensionMinute;

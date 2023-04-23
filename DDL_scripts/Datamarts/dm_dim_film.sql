@@ -1,6 +1,6 @@
 CREATE VIEW IF NOT EXISTS dm_dim_film as
     select
-		  bfh.Film_Hub_Key
+		  bfh.Film_Hub_Key as Dim_Film_Key
 		, bfh.IMDb_code
 		, bfs.Film_Title
 		, bfs.Film_Jaar

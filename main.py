@@ -1,52 +1,57 @@
 import sqlite3
 import pandas as pd
+from dateutil import easter
 
 # connect to the database
 conn = sqlite3.connect('C:\\FilmMeister\\FilmMeister.db')
 
+# ------------------------------------------------------------------
 # ----------- CREATE & LOAD STAGING TABLE AND VIEW -----------------
-# read the Excel file into a pandas DataFrame
+# ------------------------------------------------------------------
+# Read the Excel file into a pandas DataFrame
 df = pd.read_excel('C:\\FilmMeister\\Filmavonden.xlsx', sheet_name='Mastersheet')
 
-# write the DataFrame to an SQLite staging table
+# Write the DataFrame to an SQLite staging table
 df.to_sql('stg_excelsheet', conn, if_exists='replace', index=False)
 
-# create staging view
+# Create staging view
 with open('DDL_scripts/Staging/stg_excelsheet_vw.sql', 'r') as file:
     sql_script = file.read()
 conn.executescript(sql_script)
 # ------------------------------------------------------------------
 
-
+# ------------------------------------------------------------------
 # ----------- CREATE RAW DATA VAULT OBJECTS ------------------------
-# rdv_film_hub.sql
+# ------------------------------------------------------------------
+# Create rdv_film_hub.sql
 with open('DDL_scripts/Raw_data_vault/rdv_film_hub.sql', 'r') as file:
     sql_script = file.read()
 conn.executescript(sql_script)
 
-# rdv_film_sat.sql
+# Create rdv_film_sat.sql
 with open('DDL_scripts/Raw_data_vault/rdv_film_sat.sql', 'r') as file:
     sql_script = file.read()
 conn.executescript(sql_script)
 
-# rdv_meister_hub.sql
+# Create rdv_meister_hub.sql
 with open('DDL_scripts/Raw_data_vault/rdv_meister_hub.sql', 'r') as file:
     sql_script = file.read()
 conn.executescript(sql_script)
 
-# rdv_filmavond_link.sql
+# Create rdv_filmavond_link.sql
 with open('DDL_scripts/Raw_data_vault/rdv_filmavond_link.sql', 'r') as file:
     sql_script = file.read()
 conn.executescript(sql_script)
 
-# rdv_filmavond_sat.sql
+# Create rdv_filmavond_sat.sql
 with open('DDL_scripts/Raw_data_vault/rdv_filmavond_sat.sql', 'r') as file:
     sql_script = file.read()
 conn.executescript(sql_script)
 # ------------------------------------------------------------------
 
-
+# ------------------------------------------------------------------
 # ----------- RUN DML SCRIPTS: From_STG_to_RDV----------------------
+# ------------------------------------------------------------------
 #  Load hubs
 with open('DML_scripts/From_STG_to_RDV/load_hubs.sql', 'r') as file:
     sql_script = file.read()
@@ -72,46 +77,48 @@ conn.executescript(sql_script)
 conn.commit()
 # ------------------------------------------------------------------
 
-
+# ------------------------------------------------------------------
 # ----------- CREATE BUSINESS DATA VAULT OBJECTS -------------------
-# bdv_film_genre_link.sql
+# ------------------------------------------------------------------
+# Create bdv_film_genre_link.sql
 with open('DDL_scripts/Business_data_vault/bdv_film_genre_link.sql', 'r') as file:
     sql_script = file.read()
 conn.executescript(sql_script)
 
-# bdv_film_hub.sql
+# Create bdv_film_hub.sql
 with open('DDL_scripts/Business_data_vault/bdv_film_hub.sql', 'r') as file:
     sql_script = file.read()
 conn.executescript(sql_script)
 
-# bdv_genre_hub.sql
+# Create bdv_genre_hub.sql
 with open('DDL_scripts/Business_data_vault/bdv_genre_hub.sql', 'r') as file:
     sql_script = file.read()
 conn.executescript(sql_script)
 
-# bdv_film_sat.sql
+# Create bdv_film_sat.sql
 with open('DDL_scripts/Business_data_vault/bdv_film_sat.sql', 'r') as file:
     sql_script = file.read()
 conn.executescript(sql_script)
 
-# bdv_meister_hub.sql
+# Create bdv_meister_hub.sql
 with open('DDL_scripts/Business_data_vault/bdv_meister_hub.sql', 'r') as file:
     sql_script = file.read()
 conn.executescript(sql_script)
 
-# bdv_filmavond_link.sql
+# Create bdv_filmavond_link.sql
 with open('DDL_scripts/Business_data_vault/bdv_filmavond_link.sql', 'r') as file:
     sql_script = file.read()
 conn.executescript(sql_script)
 
-# bdv_filmavond_sat.sql
+# Create bdv_filmavond_sat.sql
 with open('DDL_scripts/Business_data_vault/bdv_filmavond_sat.sql', 'r') as file:
     sql_script = file.read()
 conn.executescript(sql_script)
 # ------------------------------------------------------------------
 
-
+# ------------------------------------------------------------------
 # --- PIVOT GENRES AND FILL bdv_genre_hub AND bdv_film_genre_link --
+# ------------------------------------------------------------------
 # select Film_Hub_Key and Film_Genres from rdv_film_sat and make a clean list.
 cur = conn.cursor()
 cur.execute("select Film_Hub_Key, Film_Genres from rdv_film_sat;")
@@ -167,28 +174,187 @@ for row in table_list:
         conn.commit()
 # ------------------------------------------------------------------
 
-
+# ------------------------------------------------------------------
 # ----------- CREATE DATAMARTS -------------------------------------
-# dm_dim_datum.sql
-with open('DDL_scripts/Datamarts/dm_dim_datum.sql', 'r') as file:
-    sql_script = file.read()
-conn.executescript(sql_script)
+# ------------------------------------------------------------------
 
-# dm_dim_film.sql
+# Create dm_dim_film.sql
 with open('DDL_scripts/Datamarts/dm_dim_film.sql', 'r') as file:
     sql_script = file.read()
 conn.executescript(sql_script)
 
-# dm_dim_meister.sql
+# Create dm_dim_meister.sql
 with open('DDL_scripts/Datamarts/dm_dim_meister.sql', 'r') as file:
     sql_script = file.read()
 conn.executescript(sql_script)
 
-# dm_fact_filmavond.sql
+# Create dm_fact_filmavond.sql
 with open('DDL_scripts/Datamarts/dm_fact_filmavond.sql', 'r') as file:
     sql_script = file.read()
 conn.executescript(sql_script)
 # ------------------------------------------------------------------
+
+
+# ------------------------------------------------------------------
+# ----------- Create dm_dim_datum en vul feestdagen ----------------
+# ------------------------------------------------------------------
+# Create dm_dim_datum.sql.
+with open('DDL_scripts/Datamarts/dm_dim_datum.sql', 'r') as file:
+    sql_script = file.read()
+conn.executescript(sql_script)
+
+# Get all unique years.
+cur.execute("select distinct Jaar from dm_dim_datum;")
+query_result = cur.fetchall()
+
+# Paaszondag, Goede Vrijdag, Paasmaandag, Pinksteren, Pinkstermaandag, Hemelvaartsdag en verjaardagen.
+for row in query_result:
+    for jaar_list in row:
+        jaar = int(jaar_list)
+        easter_date = easter.easter(jaar)
+        # Paaszondag
+        conn.execute('''
+            update dm_dim_datum
+                set IsFeestdag = 1
+                , Toelichting = 
+                    case 
+                        when length(Toelichting) = 0 
+                        then 'Paaszondag' 
+                        else Toelichting || ', ' || 'Paaszondag' end
+                where 
+                    Datum = datetime(?) 
+                    and IsFeestdag = 0;
+        ''', (easter_date,))
+        conn.commit()
+        # Goede Vrijdag
+        conn.execute('''
+            update dm_dim_datum
+                set IsFeestdag = 1
+                , Toelichting = 
+                    case 
+                        when length(Toelichting) = 0 
+                        then 'Goede Vrijdag' 
+                        else Toelichting || ', ' || 'Goede Vrijdag' end
+                where 
+                    Datum = datetime(date(?), '-2 days') 
+                    and IsFeestdag = 0;
+        ''', (easter_date,))
+        conn.commit()
+        # Paasmaandag
+        conn.execute('''
+            update dm_dim_datum
+                set IsFeestdag = 1
+                , Toelichting = 
+                    case 
+                        when length(Toelichting) = 0 
+                        then 'Paasmaandag' 
+                        else Toelichting || ', ' || 'Paasmaandag' end
+                where 
+                    Datum = datetime(date(?), '+1 days') 
+                    and IsFeestdag = 0;
+        ''', (easter_date,))
+        conn.commit()
+        # Pinksteren
+        conn.execute('''
+                    update dm_dim_datum
+                        set IsFeestdag = 1
+                        , Toelichting = 
+                            case 
+                                when length(Toelichting) = 0 
+                                then 'Pinksteren' 
+                                else Toelichting || ', ' || 'Pinksteren' end
+                        where 
+                            Datum = datetime(date(?), '+49 days') 
+                            and IsFeestdag = 0;
+                ''', (easter_date,))
+        conn.commit()
+        # Pinkstermaandag
+        conn.execute('''
+                    update dm_dim_datum
+                        set IsFeestdag = 1
+                        , Toelichting = 
+                            case 
+                                when length(Toelichting) = 0 
+                                then 'Pinkstermaandag' 
+                                else Toelichting || ', ' || 'Pinkstermaandag' end
+                        where 
+                            Datum = datetime(date(?), '+50 days') 
+                            and IsFeestdag = 0;
+                ''', (easter_date,))
+        conn.commit()
+        # Hemelvaartsdag
+        conn.execute('''
+                    update dm_dim_datum
+                        set IsFeestdag = 1
+                        , Toelichting = 
+                            case 
+                                when length(Toelichting) = 0 
+                                then 'Hemelvaartsdag' 
+                                else Toelichting || ', ' || 'Hemelvaartsdag' end
+                        where 
+                            Datum = datetime(date(?), '+39 days') 
+                            and IsFeestdag = 0;
+                ''', (easter_date,))
+        conn.commit()
+        # Verjaardagen
+        conn.execute('''
+                    update dm_dim_datum
+                        set IsFeestdag = 1
+                        , Toelichting = 
+                            case 
+                                when length(Toelichting) = 0 
+                                then 'Verjaardag Rick (1993)' 
+                                else Toelichting || ', ' || 'Verjaardag Rick (1993)' end
+                        where 
+                            DagVanDeMaand = '12'
+                            and MaandNummer = '08'
+                            and Jaar = cast(? as text);
+                ''', (jaar, ))
+        conn.commit()
+        conn.execute('''
+                    update dm_dim_datum
+                        set IsFeestdag = 1
+                        , Toelichting = 
+                            case 
+                                when length(Toelichting) = 0 
+                                then 'Verjaardag Joris (1994)' 
+                                else Toelichting || ', ' || 'Verjaardag Joris (1994)' end
+                        where 
+                            DagVanDeMaand = '04'
+                            and MaandNummer = '05'
+                            and Jaar = cast(? as text);
+                ''', (jaar, ))
+        conn.commit()
+        conn.execute('''
+                    update dm_dim_datum
+                        set IsFeestdag = 1
+                        , Toelichting = 
+                            case 
+                                when length(Toelichting) = 0 
+                                then 'Verjaardag Jan (1992)' 
+                                else Toelichting || ', ' || 'Verjaardag Jan (1992)' end
+                        where 
+                            DagVanDeMaand = '03'
+                            and MaandNummer = '01'
+                            and Jaar = cast(? as text);
+                ''', (jaar, ))
+        conn.commit()
+        conn.execute('''
+                    update dm_dim_datum
+                        set IsFeestdag = 1
+                        , Toelichting = 
+                            case 
+                                when length(Toelichting) = 0 
+                                then 'Verjaardag Berend (1994)' 
+                                else Toelichting || ', ' || 'Verjaardag Berend (1994)' end
+                        where 
+                            DagVanDeMaand = '27'
+                            and MaandNummer = '04'
+                            and Jaar = cast(? as text);
+                ''', (jaar, ))
+        conn.commit()
+# -----------------------------------------------------------------
+
 
 # close the database connection
 conn.close()

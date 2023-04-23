@@ -9,8 +9,7 @@ select * from rdv_filmavond_link;
 select * from rdv_filmavond_sat;
 select * from rdv_meister_hub;
 
-select
-	*
+select *
 from rdv_filmavond_link rfl
 join rdv_filmavond_sat rfs on rfl.Filmavond_Link_Key = rfs.Filmavond_Link_Key
 join rdv_film_hub rfh on rfl.Film_Hub_Key = rfh.Film_Hub_Key
@@ -26,8 +25,7 @@ select * from bdv_meister_hub;
 select * from bdv_film_genre_link;
 select * from bdv_genre_hub;
 
-select
-	*
+select *
 from bdv_filmavond_link bfl
 join bdv_filmavond_sat bfs on bfl.Filmavond_Link_Key = bfs.Filmavond_Link_Key
 join bdv_film_hub bfh on bfl.Film_Hub_Key = bfh.Film_Hub_Key
@@ -37,8 +35,16 @@ join bdv_film_genre_link bfgl on bfh.Film_Hub_Key = bfgl.Film_Hub_Key
 join bdv_genre_hub bgh on bfgl.Genre_Hub_Key = bgh.Genre_Hub_Key;
 
 -- DM --
+select * from dm_fact_filmavond dff;
+select * from dm_dim_film ddf;
+select * from dm_dim_meister ddm;
+select * from dm_dim_datum ddd;
 
-
+select *
+from dm_fact_filmavond dff
+join dm_dim_film ddf on dff.Dim_Film_key = ddf.Dim_Film_Key
+join dm_dim_meister ddm on dff.Dim_Meister_key = ddm.Dim_Meister_Key
+join dm_dim_datum ddd on dff.Dim_Filmavond_Datum_key = ddd.Datum_Key
 
 
 
