@@ -44,7 +44,7 @@ select *
 from dm_fact_filmavond dff
 join dm_dim_film ddf on dff.Dim_Film_key = ddf.Dim_Film_Key
 join dm_dim_meister ddm on dff.Dim_Meister_key = ddm.Dim_Meister_Key
-join dm_dim_datum ddd on dff.Dim_Filmavond_Datum_key = ddd.Datum_Key
+join dm_dim_datum ddd on dff.Dim_Filmavond_Datum_key = ddd.Dim_Datum_Key
 
 
 

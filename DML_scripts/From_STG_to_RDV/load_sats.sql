@@ -13,13 +13,13 @@ insert into rdv_film_sat (
 )
     with target_table as (
         select
-            COALESCE(rfs.Film_Title, '|') || '|' ||
-            COALESCE(rfs.Film_Jaar, '|') || '|' ||
-            COALESCE(rfs.Film_Genres, '|') || '|' ||
-            COALESCE(rfs.Film_Tijdsduur_min, '|') || '|' ||
-            COALESCE(rfs.Genres_weging, '|') || '|' ||
-            COALESCE(rfs.Film_tags, '|') || '|' ||
-            COALESCE(rfs.Film_IMDB_Score, '|') AS Target_Concact
+            coalesce(rfs.Film_Title, '|') || '|' ||
+            coalesce(rfs.Film_Jaar, '|') || '|' ||
+            coalesce(rfs.Film_Genres, '|') || '|' ||
+            coalesce(rfs.Film_Tijdsduur_min, '|') || '|' ||
+            coalesce(rfs.Genres_weging, '|') || '|' ||
+            coalesce(rfs.Film_tags, '|') || '|' ||
+            coalesce(rfs.Film_IMDB_Score, '|') AS Target_Concact
             , rfh.Film_Hub_Key
             , case when rfs.Is_Current is null then 1 else rfs.Is_Current end as Is_Current
         FROM rdv_film_hub rfh
@@ -28,13 +28,13 @@ insert into rdv_film_sat (
     ),
     source_table as (
         select
-            COALESCE(sev.Film_Title, '|') || '|' ||
-            COALESCE(sev.Film_Jaar, '|') || '|' ||
-            COALESCE(sev.Film_Genres, '|') || '|' ||
-            COALESCE(sev.Film_Tijdsduur_min, '|') || '|' ||
-            COALESCE(sev.Genres_weging, '|') || '|' ||
-            COALESCE(sev.Film_tags, '|') || '|' ||
-            COALESCE(sev.Film_IMDB_Score, '|') AS Source_Concact
+            coalesce(sev.Film_Title, '|') || '|' ||
+            coalesce(sev.Film_Jaar, '|') || '|' ||
+            coalesce(sev.Film_Genres, '|') || '|' ||
+            coalesce(sev.Film_Tijdsduur_min, '|') || '|' ||
+            coalesce(sev.Genres_weging, '|') || '|' ||
+            coalesce(sev.Film_tags, '|') || '|' ||
+            coalesce(sev.Film_IMDB_Score, '|') AS Source_Concact
             , rfh.Film_Hub_Key
             , sev.Film_Title
             , sev.Film_Jaar
@@ -43,7 +43,7 @@ insert into rdv_film_sat (
             , sev.Genres_weging
             , sev.Film_tags
             , sev.Film_IMDB_Score
-        FROM rdv_film_hub rfh
+        from rdv_film_hub rfh
         left join stg_excelsheet_vw sev
             on rfh.TT_Code_BK = sev.TT_Code
     )

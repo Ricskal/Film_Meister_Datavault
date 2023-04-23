@@ -19,17 +19,17 @@ AS
     )
 -- Output the result set to the permanent table
 SELECT
-      strftime('%Y%m%d', CalendarDateInterval) as Dim_Datum_Key
-    , CalendarDateInterval as Datum
-    , strftime('%w',CalendarDateInterval) +1 as	DagNummer
-    , case cast (strftime('%w', CalendarDateInterval) as integer)
-	  	when 0 then 'Zondag'
-	    when 1 then 'Maandag'
-	    when 2 then 'Dinsdag'
-	    when 3 then 'Woensdag'
-	    when 4 then 'Donderdag'
-	    when 5 then 'Vrijdag'
-	    when 6 then 'Zaterdag' end as Dag
+      strftime('%Y%m%d', CalendarDateInterval) AS Dim_Datum_Key
+    , CalendarDateInterval AS Datum
+    , strftime('%w',CalendarDateInterval) +1 AS	DagNummer
+    , CASE CAST (strftime('%w', CalendarDateInterval) AS integer)
+	  	WHEN 0 THEN 'Zondag'
+	    WHEN 1 THEN 'Maandag'
+	    WHEN 2 THEN 'Dinsdag'
+	    WHEN 3 THEN 'Woensdag'
+	    WHEN 4 THEN 'Donderdag'
+	    WHEN 5 THEN 'Vrijdag'
+	    WHEN 6 THEN 'Zaterdag' END AS Dag
     , CASE
 	  	WHEN strftime('%w', CalendarDateInterval) = '0' THEN 'Zo'
 	    WHEN strftime('%w', CalendarDateInterval) = '1' THEN 'Ma'
@@ -37,53 +37,53 @@ SELECT
 	    WHEN strftime('%w', CalendarDateInterval) = '3' THEN 'Wo'
 	    WHEN strftime('%w', CalendarDateInterval) = '4' THEN 'Do'
 	    WHEN strftime('%w', CalendarDateInterval) = '5' THEN 'Vr'
-	    WHEN strftime('%w', CalendarDateInterval) = '6' THEN 'Za' end as DagAfkorting
-    , strftime('%d',CalendarDateInterval) as DagVanDeMaand
-    , strftime('%m',CalendarDateInterval) as MaandNummer
-    , strftime('%Y',CalendarDateInterval) as Jaar
-    , case cast (strftime('%w', CalendarDateInterval) as integer)
-	    when 0 then 1
-	    when 6 then 1
-	    else 0 end as IsWeekend
-	, case cast (strftime('%w', CalendarDateInterval) as integer)
-	    when 0 then 0
-	    when 6 then 0
-	    else 1 end as IsWeekdag
-	, case strftime('%m', date(CalendarDateInterval))
-        when '01' then 'Januari'
-        when '02' then 'Februari'
-        when '03' then 'Maart'
-        when '04' then 'April'
-        when '05' then 'Mei'
-        when '06' then 'Juni'
-        when '07' then 'Juli'
-        when '08' then 'Augustus'
-        when '09' then 'September'
-        when '10' then 'Oktober'
-        when '11' then 'November'
-        when '12' then 'December' else '' end as Maand
-   , case
+	    WHEN strftime('%w', CalendarDateInterval) = '6' THEN 'Za' END AS DagAfkorting
+    , strftime('%d',CalendarDateInterval) AS DagVanDeMaand
+    , strftime('%m',CalendarDateInterval) AS MaandNummer
+    , strftime('%Y',CalendarDateInterval) AS Jaar
+    , CASE CAST (strftime('%w', CalendarDateInterval) AS integer)
+	    WHEN 0 THEN 1
+	    WHEN 6 THEN 1
+	    ELSE 0 END AS IsWeekend
+	, CASE CAST (strftime('%w', CalendarDateInterval) AS integer)
+	    WHEN 0 THEN 0
+	    WHEN 6 THEN 0
+	    ELSE 1 END AS IsWeekdag
+	, CASE strftime('%m', date(CalendarDateInterval))
+        WHEN '01' THEN 'Januari'
+        WHEN '02' THEN 'Februari'
+        WHEN '03' THEN 'Maart'
+        WHEN '04' THEN 'April'
+        WHEN '05' THEN 'Mei'
+        WHEN '06' THEN 'Juni'
+        WHEN '07' THEN 'Juli'
+        WHEN '08' THEN 'Augustus'
+        WHEN '09' THEN 'September'
+        WHEN '10' THEN 'Oktober'
+        WHEN '11' THEN 'November'
+        WHEN '12' THEN 'December' ELSE '' END AS Maand
+   , CASE
 		  -- Nieuwjaarsdag
-		  when strftime('%d',CalendarDateInterval) = '01' and strftime('%m',CalendarDateInterval) = '01' then 1
+		  WHEN strftime('%d',CalendarDateInterval) = '01' AND strftime('%m',CalendarDateInterval) = '01' THEN 1
 		  -- Koningsdag: Als als 27-4 een zondag is, dan valt koningsdag op 26-4 (zaterdag)
-		  when strftime('%m',CalendarDateInterval) = '04' and strftime('%d',CalendarDateInterval) = '27' and strftime('%w', CalendarDateInterval) <> '0' then 1
-		  when strftime('%m',CalendarDateInterval) = '04' and strftime('%d',CalendarDateInterval) = '27' and strftime('%w', CalendarDateInterval) = '6' then 1
+		  WHEN strftime('%m',CalendarDateInterval) = '04' AND strftime('%d',CalendarDateInterval) = '27' AND strftime('%w', CalendarDateInterval) <> '0' THEN 1
+		  WHEN strftime('%m',CalendarDateInterval) = '04' AND strftime('%d',CalendarDateInterval) = '27' AND strftime('%w', CalendarDateInterval) = '6' THEN 1
 		  -- Bevrijdingsdag
-		  when strftime('%m',CalendarDateInterval) = '05' and strftime('%d',CalendarDateInterval) = '05' then 1
+		  WHEN strftime('%m',CalendarDateInterval) = '05' AND strftime('%d',CalendarDateInterval) = '05' THEN 1
 		  -- Kerstdagen
-		  when strftime('%m',CalendarDateInterval) = '12' and strftime('%d',CalendarDateInterval) = '25' then 1
-		  when strftime('%m',CalendarDateInterval) = '12' and strftime('%d',CalendarDateInterval) = '26' then 1
-		  else 0
-		  end as IsFeestdag
-	, case
-	  	  when strftime('%d',CalendarDateInterval) = '01' and strftime('%m',CalendarDateInterval) = '01' then 'Nieuwjaarsdag'
-	  	  when strftime('%m',CalendarDateInterval) = '04' and strftime('%d',CalendarDateInterval) = '27' and strftime('%w', CalendarDateInterval) <> '0' then 'Koningsdag'
-	  	  when strftime('%m',CalendarDateInterval) = '04' and strftime('%d',CalendarDateInterval) = '27' and strftime('%w', CalendarDateInterval) = '6' then 'Koningsdag'
+		  WHEN strftime('%m',CalendarDateInterval) = '12' AND strftime('%d',CalendarDateInterval) = '25' THEN 1
+		  WHEN strftime('%m',CalendarDateInterval) = '12' AND strftime('%d',CalendarDateInterval) = '26' THEN 1
+		  ELSE 0
+		  END AS IsFeestdag
+	, CASE
+	  	  WHEN strftime('%d',CalendarDateInterval) = '01' AND strftime('%m',CalendarDateInterval) = '01' THEN 'Nieuwjaarsdag'
+	  	  WHEN strftime('%m',CalendarDateInterval) = '04' AND strftime('%d',CalendarDateInterval) = '27' AND strftime('%w', CalendarDateInterval) <> '0' THEN 'Koningsdag'
+	  	  WHEN strftime('%m',CalendarDateInterval) = '04' AND strftime('%d',CalendarDateInterval) = '27' AND strftime('%w', CalendarDateInterval) = '6' THEN 'Koningsdag'
 	  	  -- Bevrijdingsdag: Iedere 5 jaar is een Lustrumjaar
-	  	  when strftime('%m',CalendarDateInterval) = '05' and strftime('%d',CalendarDateInterval) = '05' then 'Bevrijdingsdag'
+	  	  WHEN strftime('%m',CalendarDateInterval) = '05' AND strftime('%d',CalendarDateInterval) = '05' THEN 'Bevrijdingsdag'
 	  	  -- Kerstdagen
-		  when strftime('%m',CalendarDateInterval) = '12' and strftime('%d',CalendarDateInterval) = '25' then '1e Kerstdag'
-		  when strftime('%m',CalendarDateInterval) = '12' and strftime('%d',CalendarDateInterval) = '26' then '2e Kerstdag'
-		  else ''
-	  end as  Toelichting
+		  WHEN strftime('%m',CalendarDateInterval) = '12' AND strftime('%d',CalendarDateInterval) = '25' THEN '1e Kerstdag'
+		  WHEN strftime('%m',CalendarDateInterval) = '12' AND strftime('%d',CalendarDateInterval) = '26' THEN '2e Kerstdag'
+		  ELSE ''
+	  END AS  Toelichting
 FROM rDateDimensionMinute;
