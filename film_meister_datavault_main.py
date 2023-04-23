@@ -3,6 +3,8 @@ import deploy_objects as do
 import load_datavault as lsr
 
 if __name__ == "__main__":
+
+    # Create variables
     database = 'C:\\FilmMeister\\FilmMeister.db'
     excelsheet_name = 'C:\\FilmMeister\\Filmavonden.xlsx'
     excelsheet_sheet = 'Mastersheet'
