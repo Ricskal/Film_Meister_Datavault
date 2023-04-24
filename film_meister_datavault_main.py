@@ -16,7 +16,7 @@ if __name__ == "__main__":
     # Create staging table and view. Then load the raw and business data vault objects.
     lsr.load_datavault(db_conn, excelsheet_name, excelsheet_sheet)
 
-    # close the database connection
+    # Close the database connection
     db_conn.close()
 
 
