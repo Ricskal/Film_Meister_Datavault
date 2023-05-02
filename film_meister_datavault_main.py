@@ -1,6 +1,7 @@
 import sqlite3
 import deploy_objects as do
 import load_datavault as lsr
+import matplotlib.pyplot as plt
 
 if __name__ == "__main__":
 
@@ -18,6 +19,8 @@ if __name__ == "__main__":
 
     # Close the database connection
     db_conn.close()
+
+
 
 
 
