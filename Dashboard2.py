@@ -1,8 +1,8 @@
 import sqlite3
 import pandas as pd
-import plotly.express as px  # (version 4.7.0 or higher)
+import plotly.express as px
 import plotly.graph_objects as go
-from dash import Dash, dcc, html, Input, Output  # pip install dash (version 2.0.0 or higher)
+from dash import Dash, dcc, html, Input, Output
 
 database = 'C:\\FilmMeister\\FilmMeister.db'
 excelsheet_name = 'C:\\FilmMeister\\Filmavonden.xlsx'
@@ -33,19 +33,16 @@ app.layout = html.Div([
 
     html.H1("Web Application Filmmeister Dashboard v0.069420", style={'text-align': 'center'}),
 
-    dcc.Dropdown(id="slct_meister",
-                 options=[
-                     {"label": "Berend", "value": 'Berend'},
-                     {"label": "Joris", "value": 'Joris'},
-                     {"label": "Jan", "value": 'Jan'},
-                     {"label": "Rick", "value": 'Rick'},
-                     {"label": "Democratisch", "value": 'Democratisch'}],
-                 multi=False,
-                 value='Rick',
-                 style={'width': "40%"}
-                 ),
+    dcc.Checklist(id="slct_meister",
+                  options=[
+                      {"label": "Berend", "value": 'Berend'},
+                      {"label": "Joris", "value": 'Joris'},
+                      {"label": "Jan", "value": 'Jan'},
+                      {"label": "Rick", "value": 'Rick'},
+                      {"label": "Democratisch", "value": 'Democratisch'}],
+                  value=['Berend']
+                  ),
 
-    html.Div(id='output_container'),
     html.Br(),
 
     dcc.Graph(id='my_bee_map')
@@ -56,18 +53,13 @@ app.layout = html.Div([
 # ------------------------------------------------------------------------------
 # Connect the Plotly graphs with Dash Components
 @app.callback(
-    [Output(component_id='output_container', component_property='children'),
-     Output(component_id='my_bee_map', component_property='figure')],
+    Output(component_id='my_bee_map', component_property='figure'),
     [Input(component_id='slct_meister', component_property='value')]
 )
 def update_graph(option_slctd):
-    print(option_slctd)
-    print(type(option_slctd))
-
-    container = "The meister chosen by user was: {}".format(option_slctd)
 
     dff = df.copy()
-    dff = dff[dff['Film Meister'] == option_slctd]
+    dff = dff[dff['Film Meister'].isin(option_slctd)]
 
     # Plotly Express
     fig = px.bar(
@@ -105,7 +97,7 @@ def update_graph(option_slctd):
     #     geo=dict(scope='usa'),
     # )
 
-    return container, fig
+    return fig
 
 
 # ------------------------------------------------------------------------------
