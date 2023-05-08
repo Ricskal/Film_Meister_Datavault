@@ -31,33 +31,58 @@ print(df)
 # App layout
 app.layout = html.Div([
 
-    html.H1("Web Application Filmmeister Dashboard v0.069420", style={'text-align': 'center'}),
+    # Header
+    html.Div(
+        html.H1("Web Application Filmmeister Dashboard v0.069420", style={'text-align': 'center', 'height': '100%'})),
 
-    dcc.Checklist(id="slct_meister",
-                  options=[
-                      {"label": "Berend", "value": 'Berend'},
-                      {"label": "Joris", "value": 'Joris'},
-                      {"label": "Jan", "value": 'Jan'},
-                      {"label": "Rick", "value": 'Rick'},
-                      {"label": "Democratisch", "value": 'Democratisch'}],
-                  value=['Berend']
-                  ),
+    # Main
+    html.Div(
+        children=[
+            # Column 1. Control panel
+            html.Div(
+                dcc.Checklist(id="slct_meister",
+                       options=[
+                           {"label": "Berend", "value": 'Berend'},
+                           {"label": "Joris", "value": 'Joris'},
+                           {"label": "Jan", "value": 'Jan'},
+                           {"label": "Rick", "value": 'Rick'},
+                           {"label": "Democratisch", "value": 'Democratisch'}],
+                       value=['Berend'])
+                , "Column 1, Control panel", style={'display': 'inline-block', 'width': '20%'}),
 
-    html.Br(),
+            # Column 1
+            html.Div(
+                [
+                    html.Div("Column 2 row 1", style={'hight': '50%'}),
+                    html.Div("Column 2 row 2", style={'hight': '50%'})
+                ], style={'display': 'inline-block', 'width': '40%'}),
 
-    dcc.Graph(id='my_bee_map')
+            # Column 2
+            html.Div(
+                [
+                    html.Div("Column 3 row 1", style={'hight': '50%'}),
+                    html.Div("Column 3 row 2", style={'hight': '50%'})
+                ], style={'display': 'inline-block', 'width': '40%'}),
+        ], style={'height': '10%'}),
+
+    # Footer
+    html.Div(html.H2("Onderkant", style={'text-align': 'right', 'height': '10%'})),
 
 ])
+
+
+
+
+dcc.Graph(id='my_bee_map')
 
 
 # ------------------------------------------------------------------------------
 # Connect the Plotly graphs with Dash Components
 @app.callback(
     Output(component_id='my_bee_map', component_property='figure'),
-    [Input(component_id='slct_meister', component_property='value')]
+    Input(component_id='slct_meister', component_property='value')
 )
 def update_graph(option_slctd):
-
     dff = df.copy()
     dff = dff[dff['Film Meister'].isin(option_slctd)]
 
@@ -67,35 +92,13 @@ def update_graph(option_slctd):
         x='Film Meister',
         y='Aantal Films'
     )
-    # fig = px.choropleth(
-    #     data_frame=dff,
-    #     locationmode='USA-states',
-    #     locations='state_code',
-    #     scope="usa",
-    #     color='Pct of Colonies Impacted',
-    #     hover_data=['State', 'Pct of Colonies Impacted'],
-    #     color_continuous_scale=px.colors.sequential.YlOrRd,
-    #     labels={'Pct of Colonies Impacted': '% of Bee Colonies'},
-    #     template='plotly_dark'
-    # )
-
-    # Plotly Graph Objects (GO)
-    # fig = go.Figure(
-    #     data=[go.Choropleth(
-    #         locationmode='USA-states',
-    #         locations=dff['state_code'],
-    #         z=dff["Pct of Colonies Impacted"].astype(float),
-    #         colorscale='Reds',
-    #     )]
-    # )
-    #
-    # fig.update_layout(
-    #     title_text="Bees Affected by Mites in the USA",
-    #     title_xanchor="center",
-    #     title_font=dict(size=24),
-    #     title_x=0.5,
-    #     geo=dict(scope='usa'),
-    # )
+    fig.update_layout(
+        title_text="Bees Affected by Mites in the USA",
+        title_xanchor="center",
+        title_font=dict(size=24),
+        title_x=0.5,
+        geo=dict(scope='usa'),
+    )
 
     return fig
 
