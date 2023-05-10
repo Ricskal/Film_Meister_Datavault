@@ -40,6 +40,7 @@ app.layout = html.Div([
         children=[
             # Column 1. Control panel
             html.Div(
+
                 dcc.Checklist(id="slct_meister",
                        options=[
                            {"label": "Berend", "value": 'Berend'},
@@ -48,16 +49,17 @@ app.layout = html.Div([
                            {"label": "Rick", "value": 'Rick'},
                            {"label": "Democratisch", "value": 'Democratisch'}],
                        value=['Berend'])
+
                 , "Column 1, Control panel", style={'display': 'inline-block', 'width': '20%'}),
 
-            # Column 1
+            # Column 2
             html.Div(
                 [
                     html.Div("Column 2 row 1", style={'hight': '50%'}),
                     html.Div("Column 2 row 2", style={'hight': '50%'})
                 ], style={'display': 'inline-block', 'width': '40%'}),
 
-            # Column 2
+            # Column 3
             html.Div(
                 [
                     html.Div("Column 3 row 1", style={'hight': '50%'}),
