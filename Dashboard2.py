@@ -15,7 +15,7 @@ db_conn = sqlite3.connect(database)
 c = db_conn.cursor()
 
 # Execute a query to retrieve the data you want to plot
-df = pd.read_sql_query('''
+df1 = pd.read_sql_query('''
     select 
           sum(dff.Aantal_Films) as 'Aantal Films'
         , ddm.Film_Meister as 'Film Meister'
@@ -25,84 +25,117 @@ df = pd.read_sql_query('''
     group by ddm.Film_Meister;
     ''', con=db_conn)
 
-print(df)
+df2 = pd.read_sql_query('''
+    select 
+          dff.Aantal_Films as 'Aantal Films'
+        , ddm.Film_Meister as 'Film Meister'
+        , ddf.Film_Jaar as 'Film Jaar'
+    from dm_fact_filmavond dff
+    join dm_dim_meister ddm 
+        on dff.Dim_Meister_key = ddm.Dim_Meister_Key 
+    join dm_dim_film ddf 
+        on dff.Dim_Film_key = ddf.Dim_Film_Key;
+    ''', con=db_conn)
+
+print(df1)
 
 # ------------------------------------------------------------------------------
-# App layout
+# App layout.
 app.layout = html.Div([
 
-    # Header
+    # Header.
     html.Div(
-        html.H1("Web Application Filmmeister Dashboard v0.069420", style={'text-align': 'center', 'height': '100%'})),
+        html.H1("Web Application Filmmeister Dashboard",
+                style={"text-align": "center", "background-color": "lightblue"})
+    ),
 
-    # Main
+    # Main.
     html.Div(
         children=[
-            # Column 1. Control panel
+
+            # Column 1. Control panel.
             html.Div(
+                dcc.Checklist(
+                    id="slct_meister",
+                    options=[
+                        {"label": "Berend", "value": "Berend"},
+                        {"label": "Joris", "value": "Joris"},
+                        {"label": "Jan", "value": "Jan"},
+                        {"label": "Rick", "value": "Rick"},
+                        {"label": "Democratisch", "value": "Democratisch"}
+                    ],
+                    value=["Berend"]
+                ),
+                style={"display": "inline-block", "width": "10%", "height": "100%", "background-color": "lightblue"}
+            ),
 
-                dcc.Checklist(id="slct_meister",
-                       options=[
-                           {"label": "Berend", "value": 'Berend'},
-                           {"label": "Joris", "value": 'Joris'},
-                           {"label": "Jan", "value": 'Jan'},
-                           {"label": "Rick", "value": 'Rick'},
-                           {"label": "Democratisch", "value": 'Democratisch'}],
-                       value=['Berend'])
-
-                , "Column 1, Control panel", style={'display': 'inline-block', 'width': '20%'}),
-
-            # Column 2
+            # Column 2. Graphs.
             html.Div(
-                [
-                    html.Div("Column 2 row 1", style={'hight': '50%'}),
-                    html.Div("Column 2 row 2", style={'hight': '50%'})
-                ], style={'display': 'inline-block', 'width': '40%'}),
+                children=[
+                    html.Div(dcc.Graph(id="graph1")),
+                    html.Div(dcc.Graph(id="graph3")),
+                ]
+                , style={"display": "inline-block", "width": "50%", "background-color": "lightblue"}),
 
-            # Column 3
+            # Column 3. Graphs.
             html.Div(
-                [
-                    html.Div("Column 3 row 1", style={'hight': '50%'}),
-                    html.Div("Column 3 row 2", style={'hight': '50%'})
-                ], style={'display': 'inline-block', 'width': '40%'}),
-        ], style={'height': '10%'}),
+                children=[
+                    html.Div(dcc.Graph(id="graph2")),
+                    html.Div(dcc.Graph(id="graph4")),
+                ]
+                , style={"display": "inline-block", "width": "50%", 'height': "50%", "background-color": "lightblue"})
+        ],
+        style={"display": "flex", "height": "90%"}
+    ),
 
-    # Footer
-    html.Div(html.H2("Onderkant", style={'text-align': 'right', 'height': '10%'})),
-
+    # Footer.
+    html.Div(
+        html.H2("Onderkant", style={"text-align": "right", "background-color": "lightblue"})
+    )
 ])
-
-
-
-
-dcc.Graph(id='my_bee_map')
 
 
 # ------------------------------------------------------------------------------
 # Connect the Plotly graphs with Dash Components
 @app.callback(
-    Output(component_id='my_bee_map', component_property='figure'),
+    [Output(component_id='graph1', component_property='figure'),
+     Output(component_id='graph2', component_property='figure')],
     Input(component_id='slct_meister', component_property='value')
 )
 def update_graph(option_slctd):
-    dff = df.copy()
-    dff = dff[dff['Film Meister'].isin(option_slctd)]
+    dff1 = df1.copy()
+    dff1 = dff1[dff1['Film Meister'].isin(option_slctd)]
 
     # Plotly Express
-    fig = px.bar(
-        data_frame=dff,
+    fig1 = px.bar(
+        data_frame=dff1,
         x='Film Meister',
         y='Aantal Films'
     )
-    fig.update_layout(
-        title_text="Bees Affected by Mites in the USA",
+    fig1.update_layout(
+        title_text="Test",
         title_xanchor="center",
         title_font=dict(size=24),
         title_x=0.5,
-        geo=dict(scope='usa'),
     )
 
-    return fig
+    dff2 = df2.copy()
+    dff2 = dff2[dff2['Film Meister'].isin(option_slctd)]
+
+    # Plotly Express
+    fig2 = px.bar(
+        data_frame=dff2,
+        x='Film Jaar',
+        y='Aantal Films'
+    )
+    fig2.update_layout(
+        title_text="Test",
+        title_xanchor="center",
+        title_font=dict(size=24),
+        title_x=0.5,
+    )
+
+    return fig1, fig2
 
 
 # ------------------------------------------------------------------------------
