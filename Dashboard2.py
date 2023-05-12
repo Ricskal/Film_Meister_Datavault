@@ -99,21 +99,22 @@ app.layout = html.Div([
 # Connect the Plotly graphs with Dash Components
 @app.callback(
     [Output(component_id='graph1', component_property='figure'),
-     Output(component_id='graph2', component_property='figure')],
+     Output(component_id='graph2', component_property='figure'),
+     Output(component_id='graph3', component_property='figure')],
     Input(component_id='slct_meister', component_property='value')
 )
 def update_graph(option_slctd):
     dff1 = df1.copy()
     dff1 = dff1[dff1['Film Meister'].isin(option_slctd)]
 
-    # Plotly Express
+    # Plotly Express graph 1
     fig1 = px.bar(
         data_frame=dff1,
         x='Film Meister',
         y='Aantal Films'
     )
     fig1.update_layout(
-        title_text="Test",
+        title_text="graph 1",
         title_xanchor="center",
         title_font=dict(size=24),
         title_x=0.5,
@@ -122,20 +123,41 @@ def update_graph(option_slctd):
     dff2 = df2.copy()
     dff2 = dff2[dff2['Film Meister'].isin(option_slctd)]
 
-    # Plotly Express
+    # Plotly Express graph 2
     fig2 = px.bar(
         data_frame=dff2,
         x='Film Jaar',
         y='Aantal Films'
     )
     fig2.update_layout(
-        title_text="Test",
+        title_text="graph 2",
         title_xanchor="center",
         title_font=dict(size=24),
         title_x=0.5,
     )
 
-    return fig1, fig2
+    # Plotly Express graph 3
+
+    dff3 = df2.copy()
+    dff3 = dff3[dff3['Film Meister'].isin(option_slctd)]
+    dff3 = dff3.groupby(['Film Meister', 'Film Jaar']).sum()
+    print(dff3)
+
+    fig3 = px.treemap(
+        data_frame=dff3,
+        # names=['Film Jaar'],
+        values=['Aantal Films'],
+        # parents=['Film Meister'],
+        path=['Film Meister', 'Film Jaar']
+    )
+    fig3.update_layout(
+        title_text="graph 3",
+        title_xanchor="center",
+        title_font=dict(size=24),
+        title_x=0.5,
+    )
+
+    return fig1, fig2, fig3
 
 
 # ------------------------------------------------------------------------------
