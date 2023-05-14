@@ -38,9 +38,6 @@ df2 = pd.read_sql_query('''
         on dff.Dim_Film_key = ddf.Dim_Film_Key;
     ''', con=db_conn)
 
-df2['Film Jaar'] = df2['Film Jaar'].astype(int)
-df2.head()
-
 # ------------------------------------------------------------------------------
 # App layout.
 app.layout = html.Div([
@@ -57,37 +54,45 @@ app.layout = html.Div([
 
             # Column 1. Control panel.
             html.Div(
-                dcc.Checklist(
-                    id="slct_meister",
-                    options=[
-                        {"label": "Berend", "value": "Berend"},
-                        {"label": "Joris", "value": "Joris"},
-                        {"label": "Jan", "value": "Jan"},
-                        {"label": "Rick", "value": "Rick"},
-                        {"label": "Democratisch", "value": "Democratisch"}
-                    ],
-                    value=["Berend"]
-                ),
+                children=[
+                    html.Label('Film meister:'),
+
+                    dcc.Checklist(
+                        id="slct_meister",
+                        options=[
+                            {"label": "Berend", "value": "Berend"},
+                            {"label": "Joris", "value": "Joris"},
+                            {"label": "Jan", "value": "Jan"},
+                            {"label": "Rick", "value": "Rick"},
+                            {"label": "Democratisch", "value": "Democratisch"}
+                        ],
+                        value=["Berend", "Joris", "Jan", "Rick", "Democratisch"],
+                        persistence=True
+                    )],
                 style={"display": "inline-block", "width": "10%", "height": "100%", "background-color": "lightblue"}
             ),
 
             # Column 2. Graphs.
             html.Div(
                 children=[
-                    html.Div(dcc.Graph(id="graph1")),
-                    html.Div(dcc.Graph(id="graph3")),
+                    html.Div(dcc.Graph(id="graph1", style={"width": "100%", "height": "100%"}),
+                             style={"width": "100%", "height": "100%"}),
+                    html.Div(dcc.Graph(id="graph3", style={"width": "100%", "height": "100%"}),
+                             style={"width": "100%", "height": "100%"}),
                 ]
-                , style={"display": "inline-block", "width": "50%", "background-color": "lightblue"}),
+                , style={"display": "inline-block", "width": "50%", "height": "50%", "background-color": "lightblue"}),
 
             # Column 3. Graphs.
             html.Div(
                 children=[
-                    html.Div(dcc.Graph(id="graph2")),
-                    html.Div(dcc.Graph(id="graph4")),
+                    html.Div(dcc.Graph(id="graph2", style={"width": "100%", "height": "100%"}),
+                             style={"width": "100%", "height": "100%"}),
+                    html.Div(dcc.Graph(id="graph4", style={"width": "100%", "height": "100%"}),
+                             style={"width": "100%", "height": "100%"}),
                 ]
                 , style={"display": "inline-block", "width": "50%", 'height': "50%", "background-color": "lightblue"})
         ],
-        style={"display": "flex", "height": "90%"}
+        style={"display": "flex", "height": "90vh"}
     ),
 
     # Footer.
@@ -123,18 +128,22 @@ def update_graph(option_slctd):
     )
 
     dff2 = df2.copy()
+    dff2['Film Jaar'] = dff2['Film Jaar'].astype(str)
     dff2 = dff2[dff2['Film Meister'].isin(option_slctd)]
 
     # Plotly Express graph 2
     fig2 = px.bar(
         data_frame=dff2,
         x='Film Jaar',
-        y='Aantal Films'
+        y='Aantal Films',
+        color='Film Meister',
+        category_orders={'Film Jaar': sorted(dff2['Film Jaar'].astype(int), reverse=False)}
+
     )
     fig2.update_layout(
-        title_text="graph 2",
+        title_text="Aantal films per uitgavejaar",
         title_xanchor="center",
-        title_font=dict(size=24),
+        title_font=dict(size=18),
         title_x=0.5,
     )
 
@@ -142,8 +151,6 @@ def update_graph(option_slctd):
 
     dff3 = df2.copy()
     dff3 = dff3[dff3['Film Meister'].isin(option_slctd)]
-    # dff3 = dff3.groupby(['Film Meister', 'Film Jaar']).sum().reset_index()
-    # print(tabulate(dff3, headers='keys', tablefmt='psql'))
 
     fig3 = px.treemap(
         data_frame=dff3,
@@ -151,7 +158,7 @@ def update_graph(option_slctd):
         values='Aantal Films'
     )
     fig3.update_layout(
-        title_text="graph 3",
+        title_text="Aantal",
         title_xanchor="center",
         title_font=dict(size=24),
         title_x=0.5,
