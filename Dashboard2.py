@@ -3,6 +3,7 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 from dash import Dash, dcc, html, Input, Output
+from tabulate import tabulate
 
 database = 'C:\\FilmMeister\\FilmMeister.db'
 excelsheet_name = 'C:\\FilmMeister\\Filmavonden.xlsx'
@@ -37,7 +38,8 @@ df2 = pd.read_sql_query('''
         on dff.Dim_Film_key = ddf.Dim_Film_Key;
     ''', con=db_conn)
 
-print(df1)
+df2['Film Jaar'] = df2['Film Jaar'].astype(int)
+df2.head()
 
 # ------------------------------------------------------------------------------
 # App layout.
@@ -140,15 +142,13 @@ def update_graph(option_slctd):
 
     dff3 = df2.copy()
     dff3 = dff3[dff3['Film Meister'].isin(option_slctd)]
-    dff3 = dff3.groupby(['Film Meister', 'Film Jaar']).sum()
-    print(dff3)
+    # dff3 = dff3.groupby(['Film Meister', 'Film Jaar']).sum().reset_index()
+    # print(tabulate(dff3, headers='keys', tablefmt='psql'))
 
     fig3 = px.treemap(
         data_frame=dff3,
-        # names=['Film Jaar'],
-        values=['Aantal Films'],
-        # parents=['Film Meister'],
-        path=['Film Meister', 'Film Jaar']
+        path=['Film Meister', 'Film Jaar'],
+        values='Aantal Films'
     )
     fig3.update_layout(
         title_text="graph 3",
