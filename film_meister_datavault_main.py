@@ -18,6 +18,3 @@ if __name__ == "__main__":
 
     # close the database connection
     db_conn.close()
-
-
-

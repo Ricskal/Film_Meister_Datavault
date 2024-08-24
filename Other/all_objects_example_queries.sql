@@ -1,3 +1,26 @@
+-- Drop tables --
+drop table if exists bdv_film_genre_link;
+drop table if exists bdv_genre_hub;
+drop table if exists dm_dim_datum;
+drop table if exists rdv_film_hub;
+drop table if exists rdv_film_sat;
+drop table if exists rdv_filmavond_link;
+drop table if exists rdv_filmavond_sat;
+drop table if exists rdv_meister_hub;
+drop table if exists stg_excelsheet;
+
+-- Drop views --
+drop view if exists bdv_film_hub;
+drop view if exists bdv_film_sat;
+drop view if exists bdv_filmavond_link;
+drop view if exists bdv_filmavond_sat;
+drop view if exists bdv_meister_hub;
+drop view if exists dm_dim_datum_vw;
+drop view if exists dm_dim_film;
+drop view if exists dm_dim_meister;
+drop view if exists dm_fact_filmavond;
+drop view if exists stg_excelsheet_vw;
+
 -- STG --
 select * from stg_excelsheet;
 select * from stg_excelsheet_vw;

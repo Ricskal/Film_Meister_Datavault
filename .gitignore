@@ -3,3 +3,4 @@
 *.iws
 *.ipr
 *.log
+__pycache__

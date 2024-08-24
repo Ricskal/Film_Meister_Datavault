@@ -2,9 +2,9 @@
         (
               Film_Hub_Key INTEGER
             , Film_Title TEXT
-            , Film_Jaar REAL
+            , Film_Jaar INTEGER
             , Film_Genres TEXT
-            , Film_Tijdsduur_min REAL
+            , Film_Tijdsduur_min INTEGER
             , Genres_weging REAL
             , Film_tags TEXT
             , Film_IMDB_Score REAL
