@@ -20,6 +20,8 @@ drop view if exists dm_dim_film;
 drop view if exists dm_dim_meister;
 drop view if exists dm_fact_filmavond;
 drop view if exists stg_excelsheet_vw;
+drop view if exists dm_dim_film_genre;
+
 
 -- STG --
 select * from stg_excelsheet;
