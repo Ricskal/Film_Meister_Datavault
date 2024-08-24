@@ -95,3 +95,8 @@ def deploy_object(db_conn):
     with open('DDL_scripts/Datamarts/dm_dim_datum_vw.sql', 'r') as file:
         sql_script = file.read()
     db_conn.executescript(sql_script)
+
+    # Create dm_dim_film_genre.sql.
+    with open('DDL_scripts/Datamarts/dm_dim_film_genre.sql', 'r') as file:
+        sql_script = file.read()
+    db_conn.executescript(sql_script)
