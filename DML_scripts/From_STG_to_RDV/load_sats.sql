@@ -13,13 +13,13 @@ insert into rdv_film_sat (
 )
     with target_table as (
         select
-            coalesce(rfs.Film_Title, '|') || '|' ||
-            coalesce(rfs.Film_Jaar, '|') || '|' ||
-            coalesce(rfs.Film_Genres, '|') || '|' ||
-            coalesce(rfs.Film_Tijdsduur_min, '|') || '|' ||
-            coalesce(rfs.Genres_weging, '|') || '|' ||
-            coalesce(rfs.Film_tags, '|') || '|' ||
-            coalesce(rfs.Film_IMDB_Score, '|') AS Target_Concact
+            upper(trim(coalesce(rfs.Film_Title, '|'))) || '|' ||
+            upper(trim(coalesce(rfs.Film_Jaar, '|'))) || '|' ||
+            upper(trim(coalesce(rfs.Film_Genres, '|'))) || '|' ||
+            upper(trim(coalesce(rfs.Film_Tijdsduur_min, '|'))) || '|' ||
+            upper(trim(coalesce(rfs.Genres_weging, '|'))) || '|' ||
+            upper(trim(coalesce(rfs.Film_tags, '|'))) || '|' ||
+            upper(trim(coalesce(rfs.Film_IMDB_Score, '|'))) AS Target_Concact
             , rfh.Film_Hub_Key
             , case when rfs.Is_Current is null then 1 else rfs.Is_Current end as Is_Current
         FROM rdv_film_hub rfh
@@ -28,13 +28,13 @@ insert into rdv_film_sat (
     ),
     source_table as (
         select
-            coalesce(sev.Film_Title, '|') || '|' ||
-            coalesce(sev.Film_Jaar, '|') || '|' ||
-            coalesce(sev.Film_Genres, '|') || '|' ||
-            coalesce(sev.Film_Tijdsduur_min, '|') || '|' ||
-            coalesce(sev.Genres_weging, '|') || '|' ||
-            coalesce(sev.Film_tags, '|') || '|' ||
-            coalesce(sev.Film_IMDB_Score, '|') AS Source_Concact
+            upper(trim(coalesce(sev.Film_Title, '|'))) || '|' ||
+            upper(trim(coalesce(sev.Film_Jaar, '|'))) || '|' ||
+            upper(trim(coalesce(sev.Film_Genres, '|'))) || '|' ||
+            upper(trim(coalesce(sev.Film_Tijdsduur_min, '|'))) || '|' ||
+            upper(trim(coalesce(sev.Genres_weging, '|'))) || '|' ||
+            upper(trim(coalesce(sev.Film_tags, '|'))) || '|' ||
+            upper(trim(coalesce(sev.Film_IMDB_Score, '|'))) AS Source_Concact
             , rfh.Film_Hub_Key
             , sev.Film_Title
             , sev.Film_Jaar
@@ -45,7 +45,7 @@ insert into rdv_film_sat (
             , sev.Film_IMDB_Score
         from rdv_film_hub rfh
         left join stg_excelsheet_vw sev
-            on rfh.TT_Code_BK = sev.TT_Code
+            on rfh.TT_Code_BK = upper(trim(coalesce(sev.TT_Code, 'Onbekend')))
     )
     select distinct
       st.Film_Hub_Key
@@ -78,12 +78,12 @@ insert into rdv_filmavond_sat (
 )
     with target_table as (
         select
-        	rfl.Filmavond_Link_Key
-            ,coalesce(rfs.Film_weekdag, '|') || '|' ||
-            coalesce(rfs.Ind_Gezien, '|') || '|' ||
-            coalesce(rfs.Aantal_Films, '|') || '|' ||
-            coalesce(rfs.Aantal_Jaar, '|') || '|' ||
-            coalesce(rfs.Aantal_Ronde, '|') AS Target_Concact
+            upper(trim(coalesce(rfs.Film_weekdag, '|'))) || '|' ||
+            upper(trim(coalesce(rfs.Ind_Gezien, '|'))) || '|' ||
+            upper(trim(coalesce(rfs.Aantal_Films, '|'))) || '|' ||
+            upper(trim(coalesce(rfs.Aantal_Jaar, '|'))) || '|' ||
+            upper(trim(coalesce(rfs.Aantal_Ronde, '|'))) AS Target_Concact
+        	, rfl.Filmavond_Link_Key
             , case when rfs.Is_Current is null then 1 else rfs.Is_Current end as Is_Current
         from rdv_filmavond_link rfl
         left join rdv_filmavond_sat rfs
@@ -91,17 +91,17 @@ insert into rdv_filmavond_sat (
     ),
     source_table as (
 		select
-			  rfl.Filmavond_Link_Key
+		    upper(trim(coalesce(sev.Film_weekdag, '|'))) || '|' ||
+		    upper(trim(coalesce(sev.Ind_Gezien, '|'))) || '|' ||
+		    upper(trim(coalesce(sev.Aantal_Films, '|'))) || '|' ||
+		    upper(trim(coalesce(sev.Aantal_Jaar, '|'))) || '|' ||
+		    upper(trim(coalesce(sev.Aantal_Ronde, '|'))) AS Source_Concact
+		    , rfl.Filmavond_Link_Key
 			, sev.Film_weekdag
 		    , sev.Ind_Gezien
 		    , sev.Aantal_Films
 		    , sev.Aantal_Jaar
 		    , sev.Aantal_Ronde
-		    ,coalesce(sev.Film_weekdag, '|') || '|' ||
-		    coalesce(sev.Ind_Gezien, '|') || '|' ||
-		    coalesce(sev.Aantal_Films, '|') || '|' ||
-		    coalesce(sev.Aantal_Jaar, '|') || '|' ||
-		    coalesce(sev.Aantal_Ronde, '|') AS Source_Concact
 	    from rdv_filmavond_link rfl
 	    left join rdv_filmavond_sat rfs
 	        on rfl.Filmavond_Link_Key = rfs.Filmavond_Link_Key
@@ -110,8 +110,8 @@ insert into rdv_filmavond_sat (
 	    left join rdv_meister_hub rmh
 	    	on rfl.Meister_Hub_Key = rmh.Meister_Hub_Key
 	    left join stg_excelsheet_vw sev
-	    	on sev.TT_Code = rfh.TT_Code_BK
-	    	and sev.Meister = rmh.Meister_BK
+	    	on upper(trim(coalesce(sev.TT_Code, 'Onbekend'))) = rfh.TT_Code_BK
+	    	and upper(trim(coalesce(sev.Meister, 'Onbekend'))) = rmh.Meister_BK
     )
     select distinct
       st.Filmavond_Link_Key

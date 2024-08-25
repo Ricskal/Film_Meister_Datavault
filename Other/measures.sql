@@ -14,9 +14,9 @@ join dm_dim_meister ddm on dff.Dim_Meister_key = ddm.Dim_Meister_Key
 --join dm_dim_datum ddd on dff.Dim_Filmavond_Datum_key = ddd.Dim_Datum_Key
 join dm_dim_datum_vw ddv on dff.Dim_Filmavond_Datum_key = ddv.Dim_Datum_Key;
 
---------------------------
--- Algemene meetwaarden --
---------------------------
+----------------------------------
+-- Meister meetwaarde: Algemeen --
+----------------------------------
 select
 	  count(distinct dff.Dim_Film_key) as Aantal_Unieke_Films
 	, sum(dff.Aantal_Filmavonden) as Aantal_Filmavonden
@@ -33,31 +33,44 @@ from dm_fact_filmavond dff
 inner join dm_dim_film ddf on dff.Dim_Film_key = ddf.Dim_Film_Key
 inner join dm_dim_datum_vw Filmavond_Datum on dff.Dim_Filmavond_Datum_key = Filmavond_Datum.Dim_Datum_Key;
 
-------------------------
--- Meister meetwaarde --
-------------------------
+-----------------------------------------------------------
+-- Meister meetwaarde: Avontuurlijkheid en Comfort Score --
+-----------------------------------------------------------
+with cte_gezien_totaal as (
+	select
+		  ddm.Film_Meister
+		, dff.Film_Al_Gezien
+		, count(distinct dff.Dim_Film_key) Totaal_Aantal_Films
+	from dm_fact_filmavond dff
+	inner join dm_dim_film ddf on dff.Dim_Film_key = ddf.Dim_Film_Key
+	inner join dm_dim_meister ddm on dff.Dim_Meister_key = ddm.Dim_Meister_Key
+	group by
+		  ddm.Film_Meister
+		, dff.Film_Al_Gezien
+)
 select
-	ddm.Film_Meister
-	,dff.Film_Al_Gezien
-	,count(*)
-from dm_fact_filmavond dff
-inner join dm_dim_film ddf on dff.Dim_Film_key = ddf.Dim_Film_Key
-inner join dm_dim_datum_vw Filmavond_Datum on dff.Dim_Filmavond_Datum_key = Filmavond_Datum.Dim_Datum_Key
-inner join dm_dim_meister ddm on dff.Dim_Meister_key = ddm.Dim_Meister_Key
-group by 
-	ddm.Film_Meister
-	,dff.Film_Al_Gezien
-;
+	  cte1.Film_Meister
+	, cte1.Film_Al_Gezien
+	, cte1.Totaal_Aantal_Films
+	, cte2.Film_Meister
+	, cte2.Film_Al_Gezien
+	, cte2.Totaal_Aantal_Films
+	, round(
+		(cte1.Totaal_Aantal_Films /1.0) / 
+			((ifnull(cte1.Totaal_Aantal_Films,0) / 1.0) + 
+			(ifnull(cte2.Totaal_Aantal_Films,0)/ 1.0))
+		,2) 
+	  as Score
+	, case when cte1.Film_Al_Gezien = 'Ja' then 'Comfort' else 'Avondtuurlijkheid' end as Score_Type
+from cte_gezien_totaal cte1
+left join cte_gezien_totaal cte2 
+	on cte1.Film_Meister = cte2.Film_Meister 
+	and cte1.Film_Al_Gezien <> cte2.Film_Al_Gezien;
 
-select
-	count(*) over (partition by ddm.Film_Meister, dff.Film_Al_Gezien)
-	,ddm.Film_Meister
-	,dff.Film_Al_Gezien
-from dm_fact_filmavond dff
-inner join dm_dim_film ddf on dff.Dim_Film_key = ddf.Dim_Film_Key
-inner join dm_dim_datum_vw Filmavond_Datum on dff.Dim_Filmavond_Datum_key = Filmavond_Datum.Dim_Datum_Key
-inner join dm_dim_meister ddm on dff.Dim_Meister_key = ddm.Dim_Meister_Key
-;
+---------------------------
+-- Meister meetwaarde: ? --
+---------------------------
+
 
 
 
