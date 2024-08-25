@@ -59,9 +59,9 @@ select
 		(cte1.Totaal_Aantal_Films /1.0) / 
 			((ifnull(cte1.Totaal_Aantal_Films,0) / 1.0) + 
 			(ifnull(cte2.Totaal_Aantal_Films,0)/ 1.0))
-		,2) 
+		,4) 
 	  as Score
-	, case when cte1.Film_Al_Gezien = 'Ja' then 'Comfort' else 'Avondtuurlijkheid' end as Score_Type
+	, case when cte1.Film_Al_Gezien = 'Ja' then 'Comfort' else 'Avontuurlijkheid' end as Score_Type
 from cte_gezien_totaal cte1
 left join cte_gezien_totaal cte2 
 	on cte1.Film_Meister = cte2.Film_Meister 
@@ -70,6 +70,8 @@ left join cte_gezien_totaal cte2
 ---------------------------
 -- Meister meetwaarde: ? --
 ---------------------------
+
+
 
 
 
