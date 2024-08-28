@@ -70,9 +70,19 @@ left join cte_gezien_totaal cte2
 ---------------------------
 -- Meister meetwaarde: ? --
 ---------------------------
-
-
-
+select
+	  dff.Fact_Filmavond_key 
+	, ddm.Film_Meister
+	, dff.Dim_Filmavond_Datum_key 
+	, dff.Film_Al_Gezien
+	, 1 as Aantal_films
+	, count(dff.dim_film_key) over (partition by ddm.film_meister order by dff.dim_filmavond_datum_key desc rows between unbounded preceding and current row) Totaal_Aantal_Films
+	, count(dff.dim_film_key) over (partition by ddm.film_meister, dff.Film_Al_Gezien order by dff.dim_filmavond_datum_key desc rows between unbounded preceding and current row) Totaal_Aantal_Films_Gezien
+	, round((count(dff.dim_film_key) over (partition by ddm.film_meister, dff.Film_Al_Gezien order by dff.dim_filmavond_datum_key desc rows between unbounded preceding and current row)/ 1.0) / (count(dff.dim_film_key) over (partition by ddm.film_meister order by dff.dim_filmavond_datum_key desc rows between unbounded preceding and current row)/ 1.0),4) test
+	from dm_fact_filmavond dff
+inner join dm_dim_film ddf on dff.Dim_Film_key = ddf.Dim_Film_Key
+inner join dm_dim_meister ddm on dff.Dim_Meister_key = ddm.Dim_Meister_Key
+;
 
 
 
