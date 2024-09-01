@@ -6,6 +6,7 @@ services:
     hostname: metabase
     volumes:
       - /dev/urandom:/dev/random:ro
+      - db-data:/db/data
     ports:
       - 3000:3000
     environment:
@@ -34,10 +35,10 @@ services:
     networks:
       - metanet1
 
-  sqlite3:
-    build: ./sqlite3
-    volumes:
-      - db-data:/db/data/
+  # sqlite3:
+  #   build: ./sqlite3
+  #   volumes:
+  #     - db-data:/db/data/
 
 networks:
   metanet1:
