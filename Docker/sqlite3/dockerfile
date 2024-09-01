@@ -1,0 +1,11 @@
+FROM alpine:3.14
+# Install SQLite
+RUN apk --no-cache add sqlite
+# Create a directory to store the database
+WORKDIR /db/data
+RUN sqlite3 FilmMeister.db
+RUN sqlite3 select 1;
+# Copy your SQLite database file into the container
+# COPY initial-db.sqlite /db/
+# Command to create a sqlite3 database
+# CMD ["sqlite3", "FilmMeister.db", ]
