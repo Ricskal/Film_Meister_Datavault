@@ -5,8 +5,8 @@ import load_datavault as lsr
 if __name__ == "__main__":
 
     # Create variables
-    database = 'C:\\FilmMeister\\FilmMeister.db'
-    excelsheet_name = 'C:\\FilmMeister\\Filmavonden.xlsx'
+    database = '/db/data/filmmeister.db'
+    excelsheet_name = '/db/data/filmavonden.xlsx'
     excelsheet_sheet = 'Mastersheet'
     db_conn = sqlite3.connect(database)
 
@@ -18,3 +18,5 @@ if __name__ == "__main__":
 
     # close the database connection
     db_conn.close()
+
+    print('Bam!')

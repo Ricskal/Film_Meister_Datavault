@@ -14,7 +14,7 @@ def load_datavault(db_conn, xcelsheet_name, xcelsheet_sheet):
     df.to_sql('stg_excelsheet', db_conn, if_exists='replace', index=False)
 
     # Create staging view
-    with open('etl/ddl_scripts/staging/stg_excelsheet_vw.sql', 'r') as file:
+    with open('ddl_scripts/staging/stg_excelsheet_vw.sql', 'r') as file:
         sql_script = file.read()
     db_conn.executescript(sql_script)
 
@@ -22,25 +22,25 @@ def load_datavault(db_conn, xcelsheet_name, xcelsheet_sheet):
     # ----------- RUN DML SCRIPTS: From_STG_to_RDV----------------------
     # ------------------------------------------------------------------
     #  Load hubs
-    with open('etl/dml_scripts/from_stg_to_rdv/load_hubs.sql', 'r') as file:
+    with open('dml_scripts/from_stg_to_rdv/load_hubs.sql', 'r') as file:
         sql_script = file.read()
     db_conn.executescript(sql_script)
     db_conn.commit()
 
     # Load links
-    with open('etl/dml_scripts/from_stg_to_rdv/load_links.sql', 'r') as file:
+    with open('dml_scripts/from_stg_to_rdv/load_links.sql', 'r') as file:
         sql_script = file.read()
     db_conn.executescript(sql_script)
     db_conn.commit()
 
     # Load satalites
-    with open('etl/dml_scripts/from_stg_to_rdv/load_sats.sql', 'r') as file:
+    with open('dml_scripts/from_stg_to_rdv/load_sats.sql', 'r') as file:
         sql_script = file.read()
     db_conn.executescript(sql_script)
     db_conn.commit()
 
     # Update the Is_Current field in the satalites
-    with open('etl/dml_scripts/from_stg_to_rdv/update_is_current.sql', 'r') as file:
+    with open('dml_scripts/from_stg_to_rdv/update_is_current.sql', 'r') as file:
         sql_script = file.read()
     db_conn.executescript(sql_script)
     db_conn.commit()
