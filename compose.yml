@@ -41,7 +41,7 @@ services:
   #     - db-data:/db/data/
   
   etl:
-    build: Docker/etl
+    build: ./etl
     volumes:
       - db-data:/db/data/
 

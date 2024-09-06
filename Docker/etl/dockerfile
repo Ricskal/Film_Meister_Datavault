@@ -1,5 +1,0 @@
-FROM python
-WORKDIR /app/
-COPY ../../deploy_object.py filmmeister/deploy_object.py
-# COPY ../../film_meister_datavault_main.py filmmeister/film_meister_datavault_main.py
-# COPY ../../load_datavault.py filmmeister/load_datavault.py
