@@ -1,9 +1,9 @@
 services:
 
-  metabase:
+  frontend:
     image: metabase/metabase:latest
-    container_name: metabase
-    hostname: metabase
+    container_name: frontend_metabase
+    hostname: frontend_metabase
     volumes:
       - /dev/urandom:/dev/random:ro
       - db-data:/db/data
@@ -13,9 +13,9 @@ services:
       MB_DB_TYPE: postgres
       MB_DB_DBNAME: metabaseappdb
       MB_DB_PORT: 5432
-      MB_DB_USER: metabase
-      MB_DB_PASS: mysecretpassword
-      MB_DB_HOST: postgres
+      MB_DB_USER_FILE: /run/secrets/mb_db_user
+      MB_DB_PASS_FILE: /run/secrets/mb_db_pass
+      MB_DB_HOST: backend_postgres
     networks:
       - metanet1
     healthcheck:
@@ -24,30 +24,34 @@ services:
       timeout: 5s
       retries: 5
 
-  postgres:
+  backend:
     image: postgres:latest
-    container_name: postgres
-    hostname: postgres
+    container_name: backend_postgres
+    hostname: backend_postgres
     environment:
-      POSTGRES_USER: metabase
+      POSTGRES_USER_FILE: /run/secrets/backend_user
       POSTGRES_DB: metabaseappdb
-      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_PASSWORD_FILE: /run/secrets/backend_password
     networks:
       - metanet1
+    # volumes:
+    #   - dashboard-data:
 
-  database_datavault:
-    build: ./database
+  datavault:
+    container_name: datavault_sqlite3
+    build: ./datavault
     volumes:
       - db-data:/db/data/
   
   etl:
+    container_name: etl_python
     depends_on: 
-      - database_datavault
+      - datavault
     build: ./etl
     volumes:
       - db-data:/db/data/
       - etl-data:/filmmeisterapp/
-    command: python3 film_meister_datavault_main.py
+  #   command: python3 film_meister_datavault_main.py
 
 networks:
   metanet1:
@@ -56,3 +60,14 @@ networks:
 volumes:
   db-data:
   etl-data:
+  dashboard-data:
+
+secrets:
+  mb_db_user:
+    file: ./secrets/mb_db_user.txt
+  mb_db_pass:
+    file: ./secrets/mb_db_pass.txt
+  postgres_user:
+    file: ./secrets/backend_user.txt
+  postgres_password:
+    file: ./secrets/backend_password.txt

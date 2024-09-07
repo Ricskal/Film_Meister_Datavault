@@ -4,3 +4,4 @@
 *.ipr
 *.log
 __pycache__
+secrets/
