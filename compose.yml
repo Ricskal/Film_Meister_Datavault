@@ -6,7 +6,7 @@ services:
     hostname: frontend_metabase
     volumes:
       - /dev/urandom:/dev/random:ro
-      - db-data:/db/data
+      - datavault-data:/db/data
     ports:
       - 3000:3000
     environment:
@@ -37,17 +37,19 @@ services:
       POSTGRES_PASSWORD_FILE: /run/secrets/backend_password
     networks:
       - metanet1
+    volumes:
+    - backend-data:/var/lib/postgresql/data/
+    ports:
+      - 5432:5432
     secrets:
       - backend_user
       - backend_password
-    # volumes:
-    #   - dashboard-data:
 
   datavault:
     container_name: datavault_sqlite3
     build: ./datavault
     volumes:
-      - db-data:/db/data/
+      - datavault-data:/db/data/
   
   etl:
     container_name: etl_python
@@ -55,18 +57,18 @@ services:
       - datavault
     build: ./etl
     volumes:
-      - db-data:/db/data/
+      - datavault-data:/db/data/
       - etl-data:/filmmeisterapp/
-  #   command: python3 film_meister_datavault_main.py
+    command: python3 film_meister_datavault_main.py
 
 networks:
   metanet1:
     driver: bridge
 
 volumes:
-  db-data:
+  backend-data:
+  datavault-data:
   etl-data:
-  dashboard-data:
 
 secrets:
   frontend_user:
