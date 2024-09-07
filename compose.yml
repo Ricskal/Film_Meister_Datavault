@@ -13,8 +13,8 @@ services:
       MB_DB_TYPE: postgres
       MB_DB_DBNAME: metabaseappdb
       MB_DB_PORT: 5432
-      MB_DB_USER_FILE: /run/secrets/mb_db_user
-      MB_DB_PASS_FILE: /run/secrets/mb_db_pass
+      MB_DB_USER_FILE: /run/secrets/frontend_user
+      MB_DB_PASS_FILE: /run/secrets/frontend_password
       MB_DB_HOST: backend_postgres
     networks:
       - metanet1
@@ -23,6 +23,9 @@ services:
       interval: 15s
       timeout: 5s
       retries: 5
+    secrets:
+      - frontend_user
+      - frontend_password
 
   backend:
     image: postgres:latest
@@ -34,6 +37,9 @@ services:
       POSTGRES_PASSWORD_FILE: /run/secrets/backend_password
     networks:
       - metanet1
+    secrets:
+      - backend_user
+      - backend_password
     # volumes:
     #   - dashboard-data:
 
@@ -63,11 +69,11 @@ volumes:
   dashboard-data:
 
 secrets:
-  mb_db_user:
-    file: ./secrets/mb_db_user.txt
-  mb_db_pass:
-    file: ./secrets/mb_db_pass.txt
-  postgres_user:
+  frontend_user:
+    file: ./secrets/frontend_user.txt
+  frontend_password:
+    file: ./secrets/frontend_password.txt
+  backend_user:
     file: ./secrets/backend_user.txt
-  postgres_password:
+  backend_password:
     file: ./secrets/backend_password.txt
