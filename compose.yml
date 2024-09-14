@@ -1,5 +1,18 @@
 services:
 
+  reverse_proxy:
+    image: 'jc21/nginx-proxy-manager:latest'
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '81:81'
+      - '443:443'
+    volumes:
+      - letsencrypt:/data
+      - reverse_proxy-data:/etc/letsencrypt
+    networks:
+      - metanet1
+
   frontend:
     image: metabase/metabase:latest
     container_name: frontend_metabase
@@ -69,6 +82,8 @@ volumes:
   backend-data:
   datavault-data:
   etl-data:
+  letsencrypt-data:
+  reverse_proxy-data:
 
 secrets:
   backend_user:

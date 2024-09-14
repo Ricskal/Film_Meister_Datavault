@@ -1,0 +1,47 @@
+services:
+
+  frontend:
+    image: metabase/metabase:latest
+    container_name: frontend_metabase
+    hostname: frontend_metabase
+    volumes:
+      - /dev/urandom:/dev/random:ro
+      - datavault-data:/db/data
+    ports:
+      - 3000:3000
+    environment:
+      MB_DB_TYPE: postgres
+      MB_DB_DBNAME: metabaseappdb
+      MB_DB_PORT: 5432
+      MB_DB_USER: admin
+      MB_DB_PASS: admin
+      MB_DB_HOST: backend_postgres
+    networks:
+      - metanet1
+    healthcheck:
+      test: curl --fail -I http://localhost:3000/api/health || exit 1
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    secrets:
+      - backend_user
+      - backend_password
+
+  backend:
+    image: postgres:latest
+    container_name: backend_postgres
+    hostname: backend_postgres
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_DB: metabaseappdb
+      POSTGRES_PASSWORD: admin
+    networks:
+      - metanet1
+    volumes:
+    - backend-data:/var/lib/postgresql/data/
+    ports:
+      - 5432:5432
+
+volumes:
+  backend-data:
+  datavault-data:
