@@ -3,10 +3,9 @@ services:
   frontend:
     image: metabase/metabase:latest
     container_name: frontend_metabase
+    depends_on: 
+      - backend
     hostname: frontend_metabase
-    volumes:
-      - /dev/urandom:/dev/random:ro
-      - datavault-data:/db/data
     ports:
       - 3000:3000
     environment:
@@ -23,9 +22,6 @@ services:
       interval: 15s
       timeout: 5s
       retries: 5
-    secrets:
-      - backend_user
-      - backend_password
 
   backend:
     image: postgres:latest
@@ -35,13 +31,10 @@ services:
       POSTGRES_USER: admin
       POSTGRES_DB: metabaseappdb
       POSTGRES_PASSWORD: admin
+
     networks:
       - metanet1
-    volumes:
-    - backend-data:/var/lib/postgresql/data/
-    ports:
-      - 5432:5432
 
-volumes:
-  backend-data:
-  datavault-data:
+networks:
+  metanet1:
+    driver: bridge
