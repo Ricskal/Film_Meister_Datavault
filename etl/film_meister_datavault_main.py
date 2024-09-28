@@ -5,8 +5,10 @@ import load_datavault as lsr
 if __name__ == "__main__":
 
     # Create variables
-    database = '/db/data/filmmeister.db'
-    excelsheet_name = '/db/data/filmavonden.xlsx'
+    # database = '/db/data/filmmeister.db'
+    # excelsheet_name = '/db/data/filmavonden.xlsx'
+    database = 'C:\FilmMeister\\FilmMeister.db'
+    excelsheet_name = 'C:\\FilmMeister\\filmavonden.xlsx'
     excelsheet_sheet = 'Mastersheet'
     db_conn = sqlite3.connect(database)
 
