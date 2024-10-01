@@ -1,4 +1,4 @@
-CREATE VIEW IF NOT EXISTS dm_dim_film AS
+CREATE VIEW IF NOT EXISTS dm.dim_film AS
     SELECT
 		  bfh.Film_Hub_Key AS Dim_Film_Key
 		, bfh.IMDb_code

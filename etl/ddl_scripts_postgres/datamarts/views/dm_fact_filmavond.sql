@@ -1,4 +1,4 @@
-CREATE VIEW IF NOT EXISTS dm_fact_filmavond AS
+CREATE VIEW IF NOT EXISTS dm.fact_filmavond AS
     SELECT
           bfl.Filmavond_Link_Key AS Fact_Filmavond_key
         , bfl.Film_Hub_Key AS Dim_Film_key

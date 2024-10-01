@@ -1,6 +1,6 @@
 -- https://medium.com/@jeffclark_61103/creating-a-date-dimension-in-sqlite-aa6f52450971
 -- Create a table to permanently store the output
-CREATE TABLE IF NOT EXISTS dm_dim_datum AS
+CREATE TABLE IF NOT EXISTS dm.dim_datum AS
 -- Initiate the recursive loop
 WITH RECURSIVE
 -- Define a CTE to hold the recursive output
