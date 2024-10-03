@@ -1,4 +1,4 @@
-CREATE VIEW IF NOT EXISTS bdv.film_sat as
+CREATE OR REPLACE VIEW bdv.film_sat as
     WITH GenreCounts AS (
         SELECT
               bfgl.Film_Hub_Key

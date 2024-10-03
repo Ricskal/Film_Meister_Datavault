@@ -1,4 +1,4 @@
-CREATE VIEW IF NOT EXISTS dm.dim_film_genre AS
+CREATE OR REPLACE VIEW dm.dim_film_genre AS
 	SELECT
 		  bfgl.Film_Hub_Key as Dim_Film_Key
 		, bghl.Genre 

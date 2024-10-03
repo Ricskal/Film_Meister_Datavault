@@ -1,4 +1,4 @@
-CREATE VIEW IF NOT EXISTS bdv.filmavond_link AS
+CREATE OR REPLACE VIEW bdv.filmavond_link AS
     SELECT
           rfl.Filmavond_Link_Key
         , rfl.Film_Hub_Key

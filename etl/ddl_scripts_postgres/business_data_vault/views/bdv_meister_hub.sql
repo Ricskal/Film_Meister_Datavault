@@ -1,4 +1,4 @@
-CREATE VIEW IF NOT EXISTS bdv.meister_hub AS
+CREATE OR REPLACE VIEW bdv.meister_hub AS
     select
           rmh.Meister_Hub_Key
         , rmh.Meister_BK AS Film_Meister

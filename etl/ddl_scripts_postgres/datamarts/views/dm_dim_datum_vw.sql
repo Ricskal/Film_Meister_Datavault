@@ -1,4 +1,4 @@
-CREATE VIEW IF NOT EXISTS dm.dim_datum_vw AS
+CREATE OR REPLACE VIEW dm.dim_datum_vw AS
     WITH cte_min_max_datum AS (
         SELECT
               MIN(Dim_Filmavond_Datum_key) AS Eerste_Filmavond_key

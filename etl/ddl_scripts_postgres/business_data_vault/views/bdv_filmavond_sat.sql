@@ -1,4 +1,4 @@
-CREATE VIEW IF NOT EXISTS bdv.filmavond_sat AS
+CREATE OR REPLACE VIEW bdv.filmavond_sat AS
     SELECT
           rfs.Filmavond_Link_Key
         , rfs.Ind_Gezien
