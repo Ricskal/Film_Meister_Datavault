@@ -1,6 +1,7 @@
 -- https://wiki.postgresql.org/wiki/Date_and_Time_dimensions
 CREATE TABLE IF NOT EXISTS dm.dim_datum AS
 SELECT
+	to_char(rfl.Datum_Filmavond_BK, 'YYYYMMDD') AS Dim_Datum_Key,
 	datum as Date,
 	extract(year from datum) AS Year,
 	extract(month from datum) AS Month,
