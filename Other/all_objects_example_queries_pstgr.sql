@@ -72,4 +72,5 @@ join dm.dim_film ddf on dff.Dim_Film_key = ddf.Dim_Film_Key
 join dm.dim_meister ddm on dff.Dim_Meister_key = ddm.Dim_Meister_Key
 join dm.dim_film_genre dfg on dff.Dim_Film_key = dfg.Dim_Film_Key
 --join dm.dim_datum ddd on dff.Dim_Filmavond_Datum_key = ddd.Dim_Datum_Key
-join dm.dim_datum_vw ddv on dff.Dim_Filmavond_Datum_key = ddv.Dim_Datum_Key;
+join dm.dim_datum_vw ddv on dff.Dim_Filmavond_Datum_key = ddv.Dim_Datum_Key
+;
