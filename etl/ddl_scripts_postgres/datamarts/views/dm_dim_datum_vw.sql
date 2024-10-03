@@ -6,20 +6,31 @@ CREATE OR REPLACE VIEW dm.dim_datum_vw AS
         FROM dm.fact_filmavond
     )
         SELECT
-              ddd.Dim_Datum_Key
-            , ddd.Datum
-            , ddd.DagNummer
-            , ddd.Dag
-            , ddd.DagAfkorting
-            , ddd.DagVanDeMaand
-            , ddd.MaandNummer
-            , ddd.Jaar
-            , ddd.IsWeekend
-            , ddd.IsWeekdag
-            , ddd.Maand
-            , ddd.IsFeestdag
-            , ddd.Toelichting
+			  ddd.dim_datum_key
+			, ddd.date
+			, ddd.year
+			, ddd.month
+			, ddd.monthname
+			, ddd.day
+			, ddd.dayofyear
+			, ddd.weekdayname
+			, ddd.calendarweek
+			, ddd.formatteddate
+			, ddd.quartal
+			, ddd.yearquartal
+			, ddd.yearmonth
+			, ddd.yearcalendarweek
+			, ddd.weekend
+			, ddd.americanholiday
+			, ddd.austrianholiday
+			, ddd.canadianholiday
+			, ddd.period
+			, ddd.cwstart
+			, ddd.cwend
+			, ddd.monthstart
+			, ddd.monthend
         FROM dm.dim_datum ddd
         JOIN cte_min_max_datum cmmd ON TRUE
         WHERE ddd.Dim_Datum_Key >= cmmd.Eerste_Filmavond_key
-        AND ddd.Dim_Datum_Key <= cmmd.Laatste_Filmavond_key;
+        AND ddd.Dim_Datum_Key <= cmmd.Laatste_Filmavond_key
+;
