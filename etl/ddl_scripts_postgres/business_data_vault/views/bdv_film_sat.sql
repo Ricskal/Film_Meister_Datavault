@@ -9,7 +9,7 @@ CREATE OR REPLACE VIEW bdv.film_sat as
         SELECT
               rfs.Film_Hub_Key
             , rfs.Film_Title
-            , rfs.Film_Jaar AS Film_Jaar
+            , rfs.Film_Jaar
             , rfs.Film_Tijdsduur_min
             , COALESCE(rfs.Film_IMDB_Score, -1) AS Film_IMDB_Score
             , CAST(1 AS REAL) / gc.Genre_Count AS Genre_Weging
