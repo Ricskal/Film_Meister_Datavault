@@ -83,10 +83,3 @@ select
 inner join dm_dim_film ddf on dff.Dim_Film_key = ddf.Dim_Film_Key
 inner join dm_dim_meister ddm on dff.Dim_Meister_key = ddm.Dim_Meister_Key
 ;
-
-
-
-
-
-
-
