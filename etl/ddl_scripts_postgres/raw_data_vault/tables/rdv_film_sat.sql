@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS rdv.film_sat (
     , Film_Genres VARCHAR NOT NULL
     , Film_Tijdsduur_min INTEGER NOT NULL
     , Genres_weging REAL NOT NULL
-    , Film_tags VARCHAR NOT NULL
+    , Film_tags VARCHAR NULL
     , Film_IMDB_Score REAL NOT NULL
     , Laaddatum TIMESTAMP NOT NULL
     , Is_Current INTEGER NOT NULL
