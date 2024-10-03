@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS rdv.filmavond_sat (
     , Aantal_Films INTEGER NOT NULL
     , Aantal_Jaar INTEGER NOT NULL
     , Aantal_Ronde INTEGER NOT NULL
-    , Laaddatum VARCHAR NOT NULL
+    , Laaddatum TIMESTAMP NOT NULL
     , Is_Current INTEGER NOT NULL 
     , PRIMARY KEY(Filmavond_Link_Key, Laaddatum)
 );
