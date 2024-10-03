@@ -1,89 +1,55 @@
--- https://medium.com/@jeffclark_61103/creating-a-date-dimension-in-sqlite-aa6f52450971
--- Create a table to permanently store the output
+-- https://wiki.postgresql.org/wiki/Date_and_Time_dimensions
 CREATE TABLE IF NOT EXISTS dm.dim_datum AS
--- Initiate the recursive loop
-WITH RECURSIVE
--- Define a CTE to hold the recursive output
-rDateDimensionMinute (CalendarDateInterval)
-AS
-    (
-        -- The anchor of the recursion is the start date of the date dimension
-        SELECT datetime('2021-03-06 00:00:00')
-        UNION ALL
-        -- The recursive query increments the time interval by the desired amount
-        -- This can be any time increment (monthly, daily, hours, minutes)
-        SELECT datetime(CalendarDateInterval, '+24 hour') FROM rDateDimensionMinute
-        -- Set the number of recursions
-        -- Functionally, this is the number of periods in the date dimension
-        LIMIT 100000
-    )
--- Output the result set to the permanent table
 SELECT
-      strftime('%Y%m%d', CalendarDateInterval) AS Dim_Datum_Key
-    , CalendarDateInterval AS Datum
-    , strftime('%w',CalendarDateInterval) +1 AS	DagNummer
-    , CASE CAST (strftime('%w', CalendarDateInterval) AS integer)
-	  	WHEN 0 THEN 'Zondag'
-	    WHEN 1 THEN 'Maandag'
-	    WHEN 2 THEN 'Dinsdag'
-	    WHEN 3 THEN 'Woensdag'
-	    WHEN 4 THEN 'Donderdag'
-	    WHEN 5 THEN 'Vrijdag'
-	    WHEN 6 THEN 'Zaterdag' END AS Dag
-    , CASE
-	  	WHEN strftime('%w', CalendarDateInterval) = '0' THEN 'Zo'
-	    WHEN strftime('%w', CalendarDateInterval) = '1' THEN 'Ma'
-	    WHEN strftime('%w', CalendarDateInterval) = '2' THEN 'Di'
-	    WHEN strftime('%w', CalendarDateInterval) = '3' THEN 'Wo'
-	    WHEN strftime('%w', CalendarDateInterval) = '4' THEN 'Do'
-	    WHEN strftime('%w', CalendarDateInterval) = '5' THEN 'Vr'
-	    WHEN strftime('%w', CalendarDateInterval) = '6' THEN 'Za' END AS DagAfkorting
-    , strftime('%d',CalendarDateInterval) AS DagVanDeMaand
-    , strftime('%m',CalendarDateInterval) AS MaandNummer
-    , strftime('%Y',CalendarDateInterval) AS Jaar
-    , CASE CAST (strftime('%w', CalendarDateInterval) AS integer)
-	    WHEN 0 THEN 1
-	    WHEN 6 THEN 1
-	    ELSE 0 END AS IsWeekend
-	, CASE CAST (strftime('%w', CalendarDateInterval) AS integer)
-	    WHEN 0 THEN 0
-	    WHEN 6 THEN 0
-	    ELSE 1 END AS IsWeekdag
-	, CASE strftime('%m', date(CalendarDateInterval))
-        WHEN '01' THEN 'Januari'
-        WHEN '02' THEN 'Februari'
-        WHEN '03' THEN 'Maart'
-        WHEN '04' THEN 'April'
-        WHEN '05' THEN 'Mei'
-        WHEN '06' THEN 'Juni'
-        WHEN '07' THEN 'Juli'
-        WHEN '08' THEN 'Augustus'
-        WHEN '09' THEN 'September'
-        WHEN '10' THEN 'Oktober'
-        WHEN '11' THEN 'November'
-        WHEN '12' THEN 'December' ELSE '' END AS Maand
-   , CASE
-		  -- Nieuwjaarsdag
-		  WHEN strftime('%d',CalendarDateInterval) = '01' AND strftime('%m',CalendarDateInterval) = '01' THEN 1
-		  -- Koningsdag: Als als 27-4 een zondag is, dan valt koningsdag op 26-4 (zaterdag)
-		  WHEN strftime('%m',CalendarDateInterval) = '04' AND strftime('%d',CalendarDateInterval) = '27' AND strftime('%w', CalendarDateInterval) <> '0' THEN 1
-		  WHEN strftime('%m',CalendarDateInterval) = '04' AND strftime('%d',CalendarDateInterval) = '27' AND strftime('%w', CalendarDateInterval) = '6' THEN 1
-		  -- Bevrijdingsdag
-		  WHEN strftime('%m',CalendarDateInterval) = '05' AND strftime('%d',CalendarDateInterval) = '05' THEN 1
-		  -- Kerstdagen
-		  WHEN strftime('%m',CalendarDateInterval) = '12' AND strftime('%d',CalendarDateInterval) = '25' THEN 1
-		  WHEN strftime('%m',CalendarDateInterval) = '12' AND strftime('%d',CalendarDateInterval) = '26' THEN 1
-		  ELSE 0
-		  END AS IsFeestdag
-	, CASE
-	  	  WHEN strftime('%d',CalendarDateInterval) = '01' AND strftime('%m',CalendarDateInterval) = '01' THEN 'Nieuwjaarsdag'
-	  	  WHEN strftime('%m',CalendarDateInterval) = '04' AND strftime('%d',CalendarDateInterval) = '27' AND strftime('%w', CalendarDateInterval) <> '0' THEN 'Koningsdag'
-	  	  WHEN strftime('%m',CalendarDateInterval) = '04' AND strftime('%d',CalendarDateInterval) = '27' AND strftime('%w', CalendarDateInterval) = '6' THEN 'Koningsdag'
-	  	  -- Bevrijdingsdag: Iedere 5 jaar is een Lustrumjaar
-	  	  WHEN strftime('%m',CalendarDateInterval) = '05' AND strftime('%d',CalendarDateInterval) = '05' THEN 'Bevrijdingsdag'
-	  	  -- Kerstdagen
-		  WHEN strftime('%m',CalendarDateInterval) = '12' AND strftime('%d',CalendarDateInterval) = '25' THEN '1e Kerstdag'
-		  WHEN strftime('%m',CalendarDateInterval) = '12' AND strftime('%d',CalendarDateInterval) = '26' THEN '2e Kerstdag'
-		  ELSE ''
-	  END AS  Toelichting
-FROM rDateDimensionMinute;
+	datum as Date,
+	extract(year from datum) AS Year,
+	extract(month from datum) AS Month,
+	-- Localized month name
+	to_char(datum, 'TMMonth') AS MonthName,
+	extract(day from datum) AS Day,
+	extract(doy from datum) AS DayOfYear,
+	-- Localized weekday
+	to_char(datum, 'TMDay') AS WeekdayName,
+	-- ISO calendar week
+	extract(week from datum) AS CalendarWeek,
+	to_char(datum, 'dd. mm. yyyy') AS FormattedDate,
+	'Q' || to_char(datum, 'Q') AS Quartal,
+	to_char(datum, 'yyyy/"Q"Q') AS YearQuartal,
+	to_char(datum, 'yyyy/mm') AS YearMonth,
+	-- ISO calendar year and week
+	to_char(datum, 'iyyy/IW') AS YearCalendarWeek,
+	-- Weekend
+	CASE WHEN extract(isodow from datum) in (6, 7) THEN 'Weekend' ELSE 'Weekday' END AS Weekend,
+	-- Fixed holidays 
+        -- for America
+        CASE WHEN to_char(datum, 'MMDD') IN ('0101', '0704', '1225', '1226')
+		THEN 'Holiday' ELSE 'No holiday' END
+		AS AmericanHoliday,
+        -- for Austria
+	CASE WHEN to_char(datum, 'MMDD') IN 
+		('0101', '0106', '0501', '0815', '1101', '1208', '1225', '1226') 
+		THEN 'Holiday' ELSE 'No holiday' END 
+		AS AustrianHoliday,
+        -- for Canada
+        CASE WHEN to_char(datum, 'MMDD') IN ('0101', '0701', '1225', '1226')
+		THEN 'Holiday' ELSE 'No holiday' END 
+		AS CanadianHoliday,
+	-- Some periods of the year, adjust for your organisation and country
+	CASE WHEN to_char(datum, 'MMDD') BETWEEN '0701' AND '0831' THEN 'Summer break'
+	     WHEN to_char(datum, 'MMDD') BETWEEN '1115' AND '1225' THEN 'Christmas season'
+	     WHEN to_char(datum, 'MMDD') > '1225' OR to_char(datum, 'MMDD') <= '0106' THEN 'Winter break'
+		ELSE 'Normal' END
+		AS Period,
+	-- ISO start and end of the week of this date
+	datum + (1 - extract(isodow from datum))::integer AS CWStart,
+	datum + (7 - extract(isodow from datum))::integer AS CWEnd,
+	-- Start and end of the month of this date
+	datum + (1 - extract(day from datum))::integer AS MonthStart,
+	(datum + (1 - extract(day from datum))::integer + '1 month'::interval)::date - '1 day'::interval AS MonthEnd
+FROM (
+	-- There are 3 leap years in this range, so calculate 365 * 10 + 3 records
+	SELECT '1900-01-01'::DATE + sequence.day AS datum
+	FROM generate_series(0,109573) AS sequence(day)
+	GROUP BY sequence.day
+     ) DQ
+order by 1;
