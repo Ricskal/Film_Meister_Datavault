@@ -237,7 +237,9 @@ from cte_rownumber cte
 where cte.rn between 1 and 3
 ;
 
-
+-----------------------------------------
+-- Meister meetwaarde: midiaan filjaar --
+-----------------------------------------
 SELECT
   PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY dm.dim_film.film_jaar) AS median
 FROM dm.fact_filmavond
@@ -247,3 +249,36 @@ INNER JOIN dm.dim_datum_vw ON dm.fact_filmavond.dim_filmavond_datum_key = dm.dim
 where {{filmmeister}}
 	and {{filmavonddatum}}
 ;
+
+--------------------------------------------------------------
+-- Meister meetwaarde: avontuurlijkheid - comfortabel score --
+--------------------------------------------------------------
+with cte_gezien_totaal as (
+	select
+		count(distinct dm.fact_filmavond.Dim_Film_key) Totaal_Aantal_Films
+	from dm.fact_filmavond
+	inner join dm.dim_film on dm.fact_filmavond.Dim_Film_key = dm.dim_film.Dim_Film_Key
+	inner join dm.dim_meister on dm.fact_filmavond.Dim_Meister_key = dm.dim_meister.Dim_Meister_key
+	inner join dm.dim_datum_vw on dm.fact_filmavond.dim_filmavond_datum_key = dm.dim_datum_vw.dim_datum_key
+	where {{filmmeister}}
+	and {{filmavonddatum}}
+)
+select
+	round(
+		(count(distinct dm.fact_filmavond.Dim_Film_key) / 1.0) / 
+		(max(cte.Totaal_Aantal_Films) / 1.0) 
+		, 4
+	) as Score
+from dm.fact_filmavond
+inner join cte_gezien_totaal cte on true
+inner join dm.dim_meister on dm.fact_filmavond.Dim_Meister_key = dm.dim_meister.Dim_Meister_key
+inner join dm.dim_datum_vw on dm.fact_filmavond.dim_filmavond_datum_key = dm.dim_datum_vw.dim_datum_key
+where dm.fact_filmavond.film_al_gezien = 'Nee'
+and {{filmmeister}}
+and {{filmavonddatum}}
+;
+
+--------------------------------------------------------------
+-- Meister meetwaarde: avontuurlijkheid - comfortabel score --
+--------------------------------------------------------------
+
