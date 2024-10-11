@@ -278,7 +278,50 @@ and {{filmmeister}}
 and {{filmavonddatum}}
 ;
 
---------------------------------------------------------------
--- Meister meetwaarde: avontuurlijkheid - comfortabel score --
---------------------------------------------------------------
+-----------------------------------------
+-- Meister meetwaarde: aantal uur film --
+-----------------------------------------
 
+select
+	sum(dm.dim_film.Film_Tijdsduur_min) / 60 
+from dm.fact_filmavond
+inner join dm.dim_film on dm.fact_filmavond.Dim_Film_key = dm.dim_film.Dim_Film_Key
+inner join dm.dim_meister on dm.fact_filmavond.Dim_Meister_key = dm.dim_meister.Dim_Meister_key
+inner join dm.dim_datum_vw on dm.fact_filmavond.dim_filmavond_datum_key = dm.dim_datum_vw.dim_datum_key
+where {{filmmeister}}
+and {{filmavonddatum}}
+
+--------------------------------------------
+-- Meister meetwaarde: genre populairitei --
+--------------------------------------------
+
+with cte_totaal_films as (
+	select
+		count(dm.dim_film_genre.genre) Totaal
+	from dm.fact_filmavond
+	inner join dm.dim_film on dm.fact_filmavond.Dim_Film_key = dm.dim_film.Dim_Film_Key
+	inner join dm.dim_meister on dm.fact_filmavond.Dim_Meister_key = dm.dim_meister.Dim_Meister_key
+	inner join dm.dim_datum_vw on dm.fact_filmavond.dim_filmavond_datum_key = dm.dim_datum_vw.dim_datum_key
+    inner join dm.dim_film_genre on dm.fact_filmavond.dim_film_key = dm.dim_film_genre.Dim_Film_Key
+	where {{filmmeister}}
+	and {{filmavonddatum}}
+), cte_totaal_films_genre as (
+    select
+    	  dm.dim_film_genre.genre Genre
+    	, count(*) Totaal
+    from dm.fact_filmavond
+    inner join dm.dim_film on dm.fact_filmavond.Dim_Film_key = dm.dim_film.Dim_Film_Key
+    inner join dm.dim_meister on dm.fact_filmavond.Dim_Meister_key = dm.dim_meister.Dim_Meister_key
+    inner join dm.dim_datum_vw on dm.fact_filmavond.dim_filmavond_datum_key = dm.dim_datum_vw.dim_datum_key
+    inner join dm.dim_film_genre on dm.fact_filmavond.dim_film_key = dm.dim_film_genre.Dim_Film_Key
+    group by dm.dim_film_genre.genre
+	where {{filmmeister}}
+	and {{filmavonddatum}}
+)
+select
+      cte_totaal_films_genre.Genre
+    , ((cte_totaal_films_genre.Totaal) * 1.0) / (cte_totaal_films.Totaal * 1.0) "Gekozen percentage"
+from cte_totaal_films
+inner join cte_totaal_films_genre on true
+order by ((cte_totaal_films_genre.Totaal) * 1.0) / (cte_totaal_films.Totaal * 1.0) desc
+;
