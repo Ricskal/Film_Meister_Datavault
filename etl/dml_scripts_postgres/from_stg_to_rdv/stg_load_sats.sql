@@ -48,7 +48,7 @@ BEGIN
 	            , sfs.Film_tags
 	            , sfs.Film_IMDB_Score
 	        from rdv.film_hub rfh
-	        left join stg.filmavondsheet sfs
+	        inner join stg.filmavondsheet sfs
 	            on rfh.TT_Code_BK = upper(trim(coalesce(sfs.TT_Code, 'Onbekend')))
 	    )
 	    select distinct
@@ -107,13 +107,11 @@ BEGIN
 			    , sfs.Aantal_Jaar
 			    , sfs.Aantal_Ronde
 		    from rdv.filmavond_link rfl
-		    left join rdv.filmavond_sat rfs
-		        on rfl.Filmavond_Link_Key = rfs.Filmavond_Link_Key
 		    left join rdv.film_hub rfh
 		    	on rfl.Filmavond_Link_Key = rfh.Film_Hub_Key
 		    left join rdv.meister_hub rmh
 		    	on rfl.Meister_Hub_Key = rmh.Meister_Hub_Key
-		    left join stg.filmavondsheet sfs
+		    inner join stg.filmavondsheet sfs
 		    	on upper(trim(coalesce(sfs.TT_Code, 'Onbekend'))) = rfh.TT_Code_BK
 		    	and upper(trim(coalesce(sfs.Meister, 'Onbekend'))) = rmh.Meister_BK
 	    )

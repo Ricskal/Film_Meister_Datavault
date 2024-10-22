@@ -13,12 +13,14 @@ BEGIN
 	        SELECT
 	              rfs.Film_Hub_Key
 	            , rfs.Laaddatum
+	            , rfs.is_current
 	            , row_number() OVER
 	                (PARTITION BY rfs.Film_Hub_Key
 	                ORDER BY rfs.Laaddatum DESC) AS rn
 	        FROM rdv.film_sat rfs
 	    ) x
 	    WHERE x.rn <> 1
+	    AND x.is_current = 1
 	);
 	
 	/* Update the Is_Current field in rdv.filmavond_sat */
@@ -32,12 +34,14 @@ BEGIN
 	        SELECT
 	              rfs.Filmavond_Link_Key
 	            , rfs.Laaddatum
+	            , rfs.is_current
 	            , row_number() OVER
 	                (PARTITION BY rfs.Filmavond_Link_Key
 	                ORDER BY rfs.Laaddatum DESC) AS rn
 	        FROM rdv.filmavond_sat rfs
 	    ) x
 	    WHERE x.rn <> 1
+	   	AND x.is_current = 1
 	);
 END;
 $$;
