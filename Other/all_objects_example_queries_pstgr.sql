@@ -28,8 +28,8 @@ select * from stg.excelsheet_vw;
 
 -- RDV --
 select * from rdv.film_hub;
-select * from rdv.film_sat;
-select * from rdv.filmavond_link;
+select * from rdv.film_sat order by film_hub_key desc;
+select * from rdv.filmavond_link order by laaddatum desc;
 select * from rdv.filmavond_sat;
 select * from rdv.meister_hub;
 
@@ -38,7 +38,9 @@ from rdv.filmavond_link rfl
 join rdv.filmavond_sat rfs on rfl.Filmavond_Link_Key = rfs.Filmavond_Link_Key
 join rdv.film_hub rfh on rfl.Film_Hub_Key = rfh.Film_Hub_Key
 join rdv.film_sat rfs2 on rfh.Film_Hub_Key =  rfs2.Film_Hub_Key
-join rdv.meister_hub rmh on rfl.Meister_Hub_Key = rmh.Meister_Hub_Key;
+join rdv.meister_hub rmh on rfl.Meister_Hub_Key = rmh.Meister_Hub_Key
+order by rfl.laaddatum  desc
+;
 
 -- BDV --
 select * from bdv.film_hub;

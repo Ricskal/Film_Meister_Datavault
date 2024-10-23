@@ -20,7 +20,6 @@ BEGIN
 	        FROM rdv.film_sat rfs
 	    ) x
 	    WHERE x.rn <> 1
-	    AND x.is_current = 1
 	);
 	
 	/* Update the Is_Current field in rdv.filmavond_sat */
@@ -41,7 +40,6 @@ BEGIN
 	        FROM rdv.filmavond_sat rfs
 	    ) x
 	    WHERE x.rn <> 1
-	   	AND x.is_current = 1
 	);
 END;
 $$;

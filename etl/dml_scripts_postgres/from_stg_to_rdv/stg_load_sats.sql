@@ -39,7 +39,7 @@ BEGIN
 	            upper(trim(coalesce(sfs.Genres_weging::varchar, '|'))) || '|' ||
 	            upper(trim(coalesce(sfs.Film_tags, '|'))) || '|' ||
 	            upper(trim(coalesce(sfs.Film_IMDB_Score::varchar, '|'))) AS Source_Concact
-	            , rfh.Film_Hub_Key //werkt niet
+	            , rfh.Film_Hub_Key
 	            , sfs.Film_Title
 	            , sfs.Film_Jaar
 	            , sfs.Film_Genres

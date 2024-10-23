@@ -13,6 +13,8 @@ language plpgsql
 as $$
 begin
     truncate table stg.filmavondsheet;
+	raise notice 'Command: "truncate table stg.filmavondsheet" completed!';
+
     call stg.load_stage(
           p_datum_filmavond
         , p_meister
@@ -24,9 +26,21 @@ begin
         , p_ind_gezien
         , p_film_imdb_score
     );
+	raise notice 'Command: "call stg.load_stage();" completed!';
+
     call stg.load_hubs();
+	raise notice 'Command: "call stg.load_hubs()" completed!';
+
 	call stg.load_links();
+   	raise notice 'Command: "call stg.load_links();" completed!';
+  
 	call stg.load_sats();
+	raise notice 'Command: "call stg.load_sats();" completed!';
+
 	call stg.update_is_current();
+	raise notice 'Command: "call stg.update_is_current();" completed!';
+
+	raise notice 'Command: "stg.load_datavault();" completed!';
+
 end;
 $$;
