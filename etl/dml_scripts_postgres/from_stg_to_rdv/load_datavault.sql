@@ -40,6 +40,9 @@ begin
 	call stg.update_is_current();
 	raise notice 'Command: "call stg.update_is_current();" completed!';
 
+    call rdv.load_genre();
+	raise notice 'Command: "call rdv.load_genre();" completed!';
+
 	raise notice 'Command: "stg.load_datavault();" completed!';
 
 end;

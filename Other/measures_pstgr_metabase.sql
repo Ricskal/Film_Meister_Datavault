@@ -325,3 +325,29 @@ from cte_totaal_films
 inner join cte_totaal_films_genre on true
 order by ((cte_totaal_films_genre.Totaal) * 1.0) / (cte_totaal_films.Totaal * 1.0) desc
 ;
+
+
+---------------------------------------
+-- Meister meetwaarde: laatste films --
+---------------------------------------
+
+with cte_rownumber as (
+	select
+	      dm.dim_datum_vw.date
+        , dm.dim_film.film_title
+		, dm.dim_meister.Film_Meister
+		, row_number () over (order by dm.fact_filmavond.dim_filmavond_datum_key desc) as rn
+	from dm.fact_filmavond
+	inner join dm.dim_film on dm.fact_filmavond.Dim_Film_key = dm.dim_film.Dim_Film_Key
+	inner join dm.dim_datum_vw on dm.fact_filmavond.dim_filmavond_datum_key = dm.dim_datum_vw.dim_datum_key
+	inner join dm.dim_meister on dm.fact_filmavond.Dim_Meister_key = dm.dim_meister.Dim_Meister_key
+	where {{filmmeister}}
+	and {{filmavonddatum}}
+)
+select
+	  cte.date as "Filmavond"
+	, cte.film_title as "Filmtitel"
+	, cte.Film_Meister as "Meister"
+from cte_rownumber cte
+where cte.rn between 1 and 5
+;
