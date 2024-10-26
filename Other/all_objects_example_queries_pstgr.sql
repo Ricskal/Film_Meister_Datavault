@@ -76,3 +76,5 @@ join dm.dim_film_genre dfg on dff.Dim_Film_key = dfg.Dim_Film_Key
 --join dm.dim_datum ddd on dff.Dim_Filmavond_Datum_key = ddd.Dim_Datum_Key
 join dm.dim_datum_vw ddv on dff.Dim_Filmavond_Datum_key = ddv.Dim_Datum_Key
 ;
+
+call stg.load_datavault('*filmavond datum yyyy-mm-dd*','*Meister naam*','*IMDb-code*','*Filmtitel*','*premiérejaar*','*[''Genre 1'', ''Genre 2'', ''Genre 3'']*','*Filmduur in min*','*Film al gezien? Ja of Nee*','*IMBd-score 0.0*');
