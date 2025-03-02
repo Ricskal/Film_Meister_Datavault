@@ -351,3 +351,114 @@ select
 from cte_rownumber cte
 where cte.rn between 1 and 5
 ;
+
+---------------------------------------
+-- DEI SCORE --
+---------------------------------------
+
+
+with AllGenres as (
+    select distinct gh.genre_bk
+    from bdv.genre_hub gh
+)
+, 
+GenreFilmavondCombinations as (
+    select
+          fl.filmavond_link_key
+        , fl.datum_filmavond_bk
+        , fl.film_hub_key
+        , ag.genre_bk
+    from rdv.filmavond_link fl
+    cross join AllGenres ag
+)
+--select * from GenreFilmavondCombinations; --Debug
+,
+GenreCountsPerFilm AS (
+	SELECT
+	      bfgl.Film_Hub_Key
+	    , COUNT(bfgl.Film_Genre_Link_Key) AS Genre_Count_per_film
+	FROM bdv.film_genre_link bfgl
+	GROUP BY bfgl.Film_Hub_Key
+)
+,
+GenreCounts as (
+    select
+          fl.filmavond_link_key
+        , gh.genre_bk
+        , count(*) as genre_count
+    from rdv.filmavond_link fl
+    inner join rdv.film_hub fh
+        on fl.film_hub_key = fh.film_hub_key
+    inner join bdv.film_genre_link fgl 
+        on fh.film_hub_key = fgl.film_hub_key
+    inner join bdv.genre_hub gh 
+        on fgl.genre_hub_key = gh.genre_hub_key
+    group by fl.filmavond_link_key, gh.genre_bk
+)
+--select * from GenreCounts order by filmavond_link_key; --Debug
+, 
+CumulativeGenreCount as (
+    select
+          gfc.filmavond_link_key
+        , gfc.datum_filmavond_bk
+        , gfc.film_hub_key
+        , gfc.genre_bk
+        , gcpf.Genre_Count_per_film
+        , coalesce(sum((gc.genre_count * (1.0 / gcpf.Genre_Count_per_film))) over (partition by gfc.genre_bk order by gfc.datum_filmavond_bk asc), 0) as count
+    from GenreFilmavondCombinations gfc
+    left join GenreCounts gc
+        on gfc.filmavond_link_key = gc.filmavond_link_key
+        and gfc.genre_bk = gc.genre_bk
+	inner join GenreCountsPerFilm gcpf
+		on gfc.film_hub_key = gcpf.film_hub_key
+)
+--select * from CumulativeGenreCount order by filmavond_link_key asc; --Debug
+,
+CalculateAverage as (
+	select
+          cgc.filmavond_link_key
+        , cgc.datum_filmavond_bk
+        , cgc.genre_bk
+        , cgc.count
+		, avg(cgc.count) over (partition by cgc.filmavond_link_key) as AverageGenreCount
+		, cgc.count / avg(cgc.count) over (partition by cgc.filmavond_link_key) as Score1
+	from CumulativeGenreCount cgc
+)
+--select * from CalculateAverage order by filmavond_link_key asc; --Debug
+,
+CalculateScore as (
+	select
+          ca.filmavond_link_key
+        , ca.datum_filmavond_bk
+        , ca.genre_bk
+        , ca.count
+		, ca.AverageGenreCount
+		, ca.Score1
+		, case
+			when ca.Score1 <= 1 then ca.Score1
+			when ca.Score1 > 1 and ca.Score1 <= 2 then (2 - ca.Score1)
+			when ca.Score1 > 2 then 0
+		end as score2
+		, case
+			when ca.Score1 <= 1 then ca.Score1
+			else (2 - Score1)
+		end as score3
+	from CalculateAverage ca
+)
+--select * from CalculateScore order by filmavond_link_key asc; --Debug
+select
+          cs.filmavond_link_key
+		, avg(cs.score2) as diversiteit_score
+		, avg(cs.score3) as diversiteit_score_hardcore
+from CalculateScore cs 
+group by cs.filmavond_link_key
+--where filmavond_link_key in (1,2,3,4) --Debug
+order by filmavond_link_key asc
+;
+
+
+
+
+
+
+
