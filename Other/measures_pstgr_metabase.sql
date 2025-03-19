@@ -351,3 +351,27 @@ select
 from cte_rownumber cte
 where cte.rn between 1 and 5
 ;
+
+------------------------------------------------
+-- Meister meetwaarde: eerst volgende meister --
+------------------------------------------------
+
+with cte_volgorde as (
+	select 'Rick' as film_meister, 1 as volgorde union
+	select 'Berend' as film_meister, 2 as volgorde union
+	select 'Joris' as film_meister, 3 as volgorde union
+	select 'Jan' as film_meister, 4 as volgorde 
+)
+select
+	  dm.dim_meister.film_meister 
+	, count(*) as aantal_keer_film_meister
+	, cte_volgorde.volgorde
+from dm.fact_filmavond
+inner join dm.dim_meister on dm.fact_filmavond.Dim_Meister_key = dm.dim_meister.Dim_Meister_key
+inner join cte_volgorde on dm.dim_meister.film_meister = cte_volgorde.film_meister
+inner join dm.dim_datum_vw on dm.fact_filmavond.dim_filmavond_datum_key = dm.dim_datum_vw.dim_datum_key
+--where dm.dim_meister.film_meister <> 'Democratisch'
+group by dm.dim_meister.film_meister,cte_volgorde.volgorde
+order by aantal_keer_film_meister asc, cte_volgorde.volgorde asc
+limit 1
+;
