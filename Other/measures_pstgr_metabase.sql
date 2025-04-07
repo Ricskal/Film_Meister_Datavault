@@ -358,102 +358,106 @@ where cte.rn between 1 and 5
 
 
 with AllGenres as (
-    select distinct gh.genre_bk
-    from bdv.genre_hub gh
+    select distinct dm.dim_film_genre.genre
+    from dm.dim_film_genre
 )
 , 
 GenreFilmavondCombinations as (
     select
-          fl.filmavond_link_key
-        , fl.datum_filmavond_bk
-        , fl.film_hub_key
-        , ag.genre_bk
-    from rdv.filmavond_link fl
-    cross join AllGenres ag
+          dm.fact_filmavond.Fact_Filmavond_key
+        , dm.fact_filmavond.Dim_Filmavond_Datum_key
+        , dm.fact_filmavond.Dim_Film_key
+        , AllGenres.genre
+        , *
+    from dm.fact_filmavond
+    inner join dm.dim_meister
+    	on dm.fact_filmavond.dim_meister_key = dm.dim_meister.dim_meister_key
+    inner join dm.dim_datum_vw 
+    	on dm.fact_filmavond.dim_filmavond_datum_key = dm.dim_datum_vw.dim_datum_key
+    cross join AllGenres
+	where {{filmmeister}}
+	and {{filmavonddatum}}
 )
---select * from GenreFilmavondCombinations; --Debug
+select * from GenreFilmavondCombinations; --Debug
 ,
 GenreCountsPerFilm AS (
-	SELECT
-	      bfgl.Film_Hub_Key
-	    , COUNT(bfgl.Film_Genre_Link_Key) AS Genre_Count_per_film
-	FROM bdv.film_genre_link bfgl
-	GROUP BY bfgl.Film_Hub_Key
+	select
+		  dm.dim_film.dim_film_key
+		, 1 / dm.dim_film.genre_weging as Genre_Count_per_film
+	from dm.dim_film
 )
 ,
 GenreCounts as (
     select
-          fl.filmavond_link_key
-        , gh.genre_bk
-        , count(*) as genre_count
-    from rdv.filmavond_link fl
-    inner join rdv.film_hub fh
-        on fl.film_hub_key = fh.film_hub_key
-    inner join bdv.film_genre_link fgl 
-        on fh.film_hub_key = fgl.film_hub_key
-    inner join bdv.genre_hub gh 
-        on fgl.genre_hub_key = gh.genre_hub_key
-    group by fl.filmavond_link_key, gh.genre_bk
+          dm.fact_filmavond.Fact_Filmavond_key
+        , dm.dim_film_genre.genre
+        , 1 as genre_count
+    from dm.fact_filmavond
+    inner join dm.dim_film_genre 
+        on dm.fact_filmavond.dim_film_key = dm.dim_film_genre.dim_film_key 
+    
 )
---select * from GenreCounts order by filmavond_link_key; --Debug
+--select * from GenreCounts order by Fact_Filmavond_key; --Debug
 , 
 CumulativeGenreCount as (
     select
-          gfc.filmavond_link_key
-        , gfc.datum_filmavond_bk
-        , gfc.film_hub_key
-        , gfc.genre_bk
-        , gcpf.Genre_Count_per_film
-        , coalesce(sum((gc.genre_count * (1.0 / gcpf.Genre_Count_per_film))) over (partition by gfc.genre_bk order by gfc.datum_filmavond_bk asc), 0) as count
-    from GenreFilmavondCombinations gfc
-    left join GenreCounts gc
-        on gfc.filmavond_link_key = gc.filmavond_link_key
-        and gfc.genre_bk = gc.genre_bk
-	inner join GenreCountsPerFilm gcpf
-		on gfc.film_hub_key = gcpf.film_hub_key
+          GenreFilmavondCombinations.Fact_Filmavond_key
+        , GenreFilmavondCombinations.Dim_Filmavond_Datum_key
+        , GenreFilmavondCombinations.Dim_Film_key
+        , GenreFilmavondCombinations.genre
+        , GenreCountsPerFilm.Genre_Count_per_film
+        , coalesce(
+        	sum((GenreCounts.genre_count * (1.0 / GenreCountsPerFilm.Genre_Count_per_film))) over (partition by GenreFilmavondCombinations.genre order by GenreFilmavondCombinations.Dim_Filmavond_Datum_key asc)
+    		, 0) as score0
+    from GenreFilmavondCombinations
+    left join GenreCounts
+        on GenreFilmavondCombinations.Fact_Filmavond_key = GenreCounts.Fact_Filmavond_key
+        and GenreFilmavondCombinations.genre = GenreCounts.genre
+	inner join GenreCountsPerFilm
+		on GenreFilmavondCombinations.Dim_Film_key = GenreCountsPerFilm.Dim_Film_key
 )
---select * from CumulativeGenreCount order by filmavond_link_key asc; --Debug
+--select * from CumulativeGenreCount order by Fact_Filmavond_key asc; --Debug
 ,
 CalculateAverage as (
 	select
-          cgc.filmavond_link_key
-        , cgc.datum_filmavond_bk
-        , cgc.genre_bk
-        , cgc.count
-		, avg(cgc.count) over (partition by cgc.filmavond_link_key) as AverageGenreCount
-		, cgc.count / avg(cgc.count) over (partition by cgc.filmavond_link_key) as Score1
-	from CumulativeGenreCount cgc
+          CumulativeGenreCount.Fact_Filmavond_key
+        , CumulativeGenreCount.Dim_Filmavond_Datum_key
+        , CumulativeGenreCount.genre
+        , CumulativeGenreCount.score0
+		, avg(CumulativeGenreCount.score0) over (partition by CumulativeGenreCount.Fact_Filmavond_key) as AverageGenreCount
+		, CumulativeGenreCount.score0 / avg(CumulativeGenreCount.score0) over (partition by CumulativeGenreCount.Fact_Filmavond_key) as Score1
+	from CumulativeGenreCount
 )
---select * from CalculateAverage order by filmavond_link_key asc; --Debug
+--select * from CalculateAverage order by Fact_Filmavond_key asc; --Debug
 ,
 CalculateScore as (
 	select
-          ca.filmavond_link_key
-        , ca.datum_filmavond_bk
-        , ca.genre_bk
-        , ca.count
-		, ca.AverageGenreCount
-		, ca.Score1
+          CalculateAverage.Fact_Filmavond_key
+        , CalculateAverage.Dim_Filmavond_Datum_key
+        , CalculateAverage.genre
+        , CalculateAverage.score0
+		, CalculateAverage.AverageGenreCount
+		, CalculateAverage.Score1
 		, case
-			when ca.Score1 <= 1 then ca.Score1
-			when ca.Score1 > 1 and ca.Score1 <= 2 then (2 - ca.Score1)
-			when ca.Score1 > 2 then 0
+			when CalculateAverage.Score1 <= 1 then CalculateAverage.Score1
+			when CalculateAverage.Score1 > 1 and CalculateAverage.Score1 <= 2 then (2 - CalculateAverage.Score1)
+			when CalculateAverage.Score1 > 2 then 0
 		end as score2
 		, case
-			when ca.Score1 <= 1 then ca.Score1
+			when CalculateAverage.Score1 <= 1 then CalculateAverage.Score1
 			else (2 - Score1)
 		end as score3
-	from CalculateAverage ca
+	from CalculateAverage
 )
---select * from CalculateScore order by filmavond_link_key asc; --Debug
+--select * from CalculateScore order by Fact_Filmavond_key asc; --Debug
 select
-          cs.filmavond_link_key
-		, avg(cs.score2) as diversiteit_score
-		, avg(cs.score3) as diversiteit_score_hardcore
-from CalculateScore cs 
-group by cs.filmavond_link_key
---where filmavond_link_key in (1,2,3,4) --Debug
-order by filmavond_link_key asc
+          CalculateScore.Fact_Filmavond_key
+		, avg(CalculateScore.score2) as diversiteit_score
+		, avg(CalculateScore.score3) as diversiteit_score_hardcore
+from CalculateScore 
+group by CalculateScore.Fact_Filmavond_key
+--where Fact_Filmavond_key in (1,2,3,4) --Debug
+order by Fact_Filmavond_key asc
 ;
 
 
