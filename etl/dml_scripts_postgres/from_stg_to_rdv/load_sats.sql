@@ -108,7 +108,7 @@ BEGIN
 			    , sfs.Aantal_Ronde
 		    from rdv.filmavond_link rfl
 		    left join rdv.film_hub rfh
-		    	on rfl.Filmavond_Link_Key = rfh.Film_Hub_Key
+		    	on rfl.Film_Hub_Key = rfh.Film_Hub_Key
 		    left join rdv.meister_hub rmh
 		    	on rfl.Meister_Hub_Key = rmh.Meister_Hub_Key
 		    inner join stg.filmavondsheet sfs
