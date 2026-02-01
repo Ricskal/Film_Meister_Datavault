@@ -106,7 +106,7 @@ insert into rdv_filmavond_sat (
 	    left join rdv_filmavond_sat rfs
 	        on rfl.Filmavond_Link_Key = rfs.Filmavond_Link_Key
 	    left join rdv_film_hub rfh
-	    	on rfl.Filmavond_Link_Key = rfh.Film_Hub_Key
+	    	on rfl.Film_Hub_Key = rfh.Film_Hub_Key
 	    left join rdv_meister_hub rmh
 	    	on rfl.Meister_Hub_Key = rmh.Meister_Hub_Key
 	    left join stg_excelsheet_vw sev
